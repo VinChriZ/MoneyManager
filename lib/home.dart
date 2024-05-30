@@ -138,7 +138,9 @@ class AddFinancialReportButton extends StatelessWidget {
       padding: EdgeInsets.all(16.0),
       margin: EdgeInsets.all(8.0),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          // Handle adding financial report
+        },
         child: Text('Add Financial Report'),
       ),
     );
@@ -148,6 +150,7 @@ class AddFinancialReportButton extends StatelessWidget {
 class FinancialChartsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // Placeholder for chart data
     var data = [
       charts.Series<int, int>(
         id: 'Expenses',

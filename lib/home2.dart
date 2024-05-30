@@ -52,9 +52,7 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Account Balance',
-                  style: TextStyle(
-                      color: const Color.fromARGB(255, 158, 158, 158))),
+              Text('Account Balance', style: TextStyle(color: Colors.grey)),
               Text('\$9400',
                   style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
               SizedBox(height: 16.0),
@@ -91,7 +89,7 @@ class HomeScreen extends StatelessWidget {
   Widget _buildSummaryCard(
       String title, String amount, Color color, IconData icon) {
     return Card(
-      color: color.withOpacity(0.1),
+      color: color.withOpacity(0.4), // Adjusted opacity for more vibrant colors
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -100,7 +98,7 @@ class HomeScreen extends StatelessWidget {
             SizedBox(height: 8.0),
             Text(amount,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            Text(title, style: TextStyle(color: Colors.grey)),
+            Text(title, style: TextStyle(color: Colors.black)),
           ],
         ),
       ),
