@@ -1,2 +1,3 @@
-# MoneyManager
-Project AMBW
+# flutter_moneymanager
+
+A new Flutter project.
