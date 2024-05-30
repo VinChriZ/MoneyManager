@@ -23,7 +23,7 @@ class Main extends StatefulWidget {
 class _MainState extends State<Main> {
   int _selectedIndex = 0;
   final List<Widget> _pages = [
-    Home(),
+    HomeScreen(),
   ];
 
   void _onTap(int index) {
