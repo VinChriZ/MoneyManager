@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_moneymanager/home.dart';
 import 'package:flutter_moneymanager/login.dart';
+import 'package:flutter_moneymanager/profile.dart';
 
 void main() {
   runApp(MyApp());
@@ -24,6 +25,7 @@ class _MainState extends State<Main> {
   int _selectedIndex = 0;
   final List<Widget> _pages = [
     HomeScreen(),
+    ProfilePage(),
   ];
 
   void _onTap(int index) {
@@ -46,20 +48,8 @@ class _MainState extends State<Main> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.explore),
-            label: '2',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bookmark),
-            label: '3',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star),
-            label: '4',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: '5',
+            label: 'Profile',
           ),
         ],
         currentIndex: _selectedIndex,
