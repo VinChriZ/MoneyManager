@@ -14,8 +14,7 @@ class HomeScreen extends StatelessWidget {
             NotificationsWidget(),
             AddFinancialReportButton(),
             FinancialChartsWidget(),
-            FinancialReportsWidget(),
-            ProfileSettingsWidget(),
+            FinancialReportsWidget()
           ],
         ),
       ),
@@ -139,9 +138,7 @@ class AddFinancialReportButton extends StatelessWidget {
       padding: EdgeInsets.all(16.0),
       margin: EdgeInsets.all(8.0),
       child: ElevatedButton(
-        onPressed: () {
-          // Handle adding financial report
-        },
+        onPressed: () {},
         child: Text('Add Financial Report'),
       ),
     );
@@ -151,7 +148,6 @@ class AddFinancialReportButton extends StatelessWidget {
 class FinancialChartsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Placeholder for chart data
     var data = [
       charts.Series<int, int>(
         id: 'Expenses',
@@ -242,53 +238,6 @@ class FinancialReportsWidget extends StatelessWidget {
           Text(
             'Total Income: \$24000, Total Expenses: \$18000, Final Balance: \$6000',
             style: TextStyle(fontSize: 16),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ProfileSettingsWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      margin: EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Profile Settings',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8.0),
-          Text(
-            'Name: John Doe',
-            style: TextStyle(fontSize: 16),
-          ),
-          Text(
-            'Email: johndoe@example.com',
-            style: TextStyle(fontSize: 16),
-          ),
-          SizedBox(height: 8.0),
-          ElevatedButton(
-            onPressed: () {
-              // Handle account settings
-            },
-            child: Text('Edit Profile'),
           ),
         ],
       ),
