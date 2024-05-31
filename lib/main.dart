@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_moneymanager/home.dart';
-import 'package:flutter_moneymanager/home2.dart';
 import 'package:flutter_moneymanager/login.dart';
 import 'package:flutter_moneymanager/profile.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -26,7 +25,7 @@ class Main extends StatefulWidget {
 class _MainState extends State<Main> {
   int _selectedIndex = 0;
   final List<Widget> _pages = [
-    HomeScreen2(),
+    Home(),
     ProfilePage(),
   ];
 
