@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_moneymanager/home.dart';
 import 'package:flutter_moneymanager/login.dart';
 import 'package:flutter_moneymanager/profile.dart';
+import 'package:flutter_moneymanager/income.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 void main() {
@@ -78,7 +79,10 @@ class _MainState extends State<Main> {
             backgroundColor: Colors.green,
             label: 'Income',
             onTap: () {
-              // Handle income action
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => IncomePage()),
+              );
             },
           ),
           SpeedDialChild(
