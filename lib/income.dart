@@ -69,32 +69,25 @@ class _IncomePageState extends State<IncomePage> {
   }
 
   void _updateChartData() {
-    // Compute new data for the graph using the updated list of incomes
     List<int> newData = List.generate(31, (index) => 0);
 
-    // Loop through each income entry and update the data accordingly
     for (var income in incomes) {
-      // Extract day from the income entry (assuming time is in the format "1st May")
       var day = int.tryParse(
           income['time'].split(' ')[0].replaceAll(RegExp(r'\D'), ''));
 
-      // Increment the data for that day by the amount of income
       if (day != null && day >= 1 && day <= 31) {
         newData[day - 1] += int.parse(income['amount'].substring(2));
       }
     }
 
-    // Update the chart data
     setState(() {
       data = [
         charts.Series<int, int>(
           id: 'Income',
           colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-          domainFn: (int income, _) =>
-              income + 1, // Adding 1 to index to match day numbers
+          domainFn: (int income, _) => income + 1,
           measureFn: (int income, _) => newData[income],
-          data: List.generate(
-              31, (index) => index), // Generate indices from 0 to 30
+          data: List.generate(31, (index) => index),
         ),
       ];
     });
@@ -258,7 +251,6 @@ class _IncomePageState extends State<IncomePage> {
                       amount, time, icon, color);
                   Navigator.of(context).pop();
                 } else {
-                  // Show an alert if the form is not complete
                   showDialog(
                     context: context,
                     builder: (context) {
@@ -343,7 +335,6 @@ class _IncomePageState extends State<IncomePage> {
   }
 
   Widget _buildIncomeSummary() {
-    // Group incomes by category
     Map<String, double> categoryAmounts = {};
     incomes.forEach((income) {
       String category = income['category'] as String;
@@ -355,12 +346,11 @@ class _IncomePageState extends State<IncomePage> {
       }
     });
 
-    // Sort categories by amount
     var sortedCategories = categoryAmounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
     return SizedBox(
-      height: 120, // Specify the height of the income summary section
+      height: 120,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: sortedCategories.length,
@@ -368,10 +358,10 @@ class _IncomePageState extends State<IncomePage> {
           final category = sortedCategories[index].key;
           final amount = sortedCategories[index].value;
           return SizedBox(
-            width: 150, // Specify the width of each income card
+            width: 150,
             child: _buildSummaryCard(
               category,
-              '+\$${amount.toStringAsFixed(0)}', // Format without decimal places
+              '+\$${amount.toStringAsFixed(0)}',
               _getCategoryColor(category),
               _getCategoryIcon(category),
             ),
@@ -382,7 +372,6 @@ class _IncomePageState extends State<IncomePage> {
   }
 
   Color _getCategoryColor(String category) {
-    // Define colors for each category
     Map<String, Color> categoryColors = {
       'Salary': Colors.blue,
       'Freelance': Colors.green,
@@ -396,7 +385,6 @@ class _IncomePageState extends State<IncomePage> {
   }
 
   IconData _getCategoryIcon(String category) {
-    // Define icons for each category
     Map<String, IconData> categoryIcons = {
       'Salary': Icons.money,
       'Freelance': Icons.laptop_mac,
@@ -405,7 +393,6 @@ class _IncomePageState extends State<IncomePage> {
       'Rent': Icons.home,
       'Other': Icons.category,
     };
-    // Return icon based on category
     return categoryIcons[category] ?? Icons.category;
   }
 
@@ -468,14 +455,11 @@ class _IncomePageState extends State<IncomePage> {
     List<IncomeData> incomeData =
         List.generate(31, (index) => IncomeData(index + 1, 0));
 
-    // Loop through each income entry and update the data accordingly
     for (var income in incomes) {
-      // Extract day from the income entry (assuming time is in the format "1st May")
       var day = int.tryParse(
         income['time'].split(' ')[0].replaceAll(RegExp(r'\D'), ''),
       );
 
-      // Increment the data for that day by the amount of income
       if (day != null && day >= 1 && day <= 31) {
         incomeData[day - 1].amount += int.parse(income['amount'].substring(2));
       }

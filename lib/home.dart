@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'login.dart';
 
 void main() {
   runApp(Home());
@@ -44,6 +46,15 @@ class HomeScreen extends StatelessWidget {
             Icon(Icons.notifications, color: Colors.purple),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () {
+              _signOut(context);
+            },
+            color: Colors.red,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -62,7 +73,7 @@ class HomeScreen extends StatelessWidget {
                     child: _buildSummaryCard('Income', '\$5000', Colors.green,
                         FontAwesomeIcons.arrowDown),
                   ),
-                  SizedBox(width: 16.0), // Add some space between the cards
+                  SizedBox(width: 16.0),
                   Expanded(
                     child: _buildSummaryCard('Expenses', '\$1200', Colors.red,
                         FontAwesomeIcons.arrowUp),
@@ -85,10 +96,39 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  void _signOut(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Logout'),
+          content: Text('Are you sure you want to logout?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => Login()),
+                );
+              },
+              child: Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildSummaryCard(
       String title, String amount, Color color, IconData icon) {
     return Card(
-      color: color.withOpacity(0.4), // Adjusted opacity for more vibrant colors
+      color: color.withOpacity(0.4),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -105,7 +145,6 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildSpendFrequencyGraph() {
-    // Placeholder for the graph widget. You can replace it with an actual graph implementation.
     var data = [
       charts.Series<int, int>(
         id: 'Spending',

@@ -1,46 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_moneymanager/home.dart';
-import 'register.dart';
+import 'package:flutter_moneymanager/login.dart';
 
-class Login extends StatelessWidget {
-  Login({super.key});
+class Register extends StatelessWidget {
+  Register({super.key});
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  void _signUserIn(BuildContext context) async {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Prevent user from dismissing the dialog
-      builder: (BuildContext context) {
-        return Center(
-          child: CircularProgressIndicator(), // Loading indicator
-        );
-      },
-    );
-
+  void _registerUser(BuildContext context) async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      Navigator.of(context).pop(); // Close the loading indicator dialog
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login successful')),
-      );
-      await Future.delayed(Duration(seconds: 2));
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => Home()),
-      );
-    } catch (e) {
-      Navigator.of(context).pop();
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Login Failed'),
-            content: Text('Error: ${e.toString()}'),
+            title: Text('Success'),
+            content: Text('Successfully registered'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => Login()),
+                  );
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Registration failed: ${e.toString()}'),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -59,7 +59,7 @@ class Login extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        title: Text('Register'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -70,13 +70,13 @@ class Login extends StatelessWidget {
             children: [
               SizedBox(height: 60.0),
               Icon(
-                Icons.lock,
+                Icons.person_add,
                 size: 100,
                 color: Colors.blue,
               ),
               SizedBox(height: 40.0),
               Text(
-                'Welcome Back',
+                'Create Account',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 24.0,
@@ -85,7 +85,7 @@ class Login extends StatelessWidget {
               ),
               SizedBox(height: 10.0),
               Text(
-                'Please login to your account',
+                'Please enter your details to sign up',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16.0,
@@ -119,28 +119,10 @@ class Login extends StatelessWidget {
               SizedBox(height: 30.0),
               ElevatedButton(
                 onPressed: () {
-                  _signUserIn(context);
+                  _registerUser(context);
                 },
                 child: Text(
-                  'Login',
-                  style: TextStyle(fontSize: 18.0),
-                ),
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 12.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                ),
-              ),
-              SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => Register()),
-                  );
-                },
-                child: Text(
-                  'Sign Up',
+                  'Register',
                   style: TextStyle(fontSize: 18.0),
                 ),
                 style: ElevatedButton.styleFrom(

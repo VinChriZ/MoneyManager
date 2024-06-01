@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "851237464450",
+    "project_id": "ambw-auth-171bb",
+    "storage_bucket": "ambw-auth-171bb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:851237464450:android:c0b6d95e525758c243c79b",
+        "android_client_info": {
+          "package_name": "com.example.flutter_moneymanager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcbNufpvZE8vT2EfZyonieMZqOUDy7eGc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
