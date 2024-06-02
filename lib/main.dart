@@ -4,12 +4,13 @@ import 'package:flutter_moneymanager/home.dart';
 import 'package:flutter_moneymanager/login.dart';
 import 'package:flutter_moneymanager/profile.dart';
 import 'package:flutter_moneymanager/income.dart';
+import 'package:flutter_moneymanager/expense.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized;
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MyApp());
 }
@@ -95,7 +96,10 @@ class _MainState extends State<Main> {
             backgroundColor: Colors.red,
             label: 'Expense',
             onTap: () {
-              // Handle expense action
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ExpensePage()),
+              );
             },
           ),
         ],

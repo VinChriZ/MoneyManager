@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_moneymanager/home.dart';
+import 'package:flutter_moneymanager/main.dart';
 import 'register.dart';
 
-class Login extends StatelessWidget {
-  Login({super.key});
+class Login extends StatefulWidget {
+  @override
+  _LoginState createState() => _LoginState();
+}
 
+class _LoginState extends State<Login> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  void _signUserIn(BuildContext context) async {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Prevent user from dismissing the dialog
-      builder: (BuildContext context) {
-        return Center(
-          child: CircularProgressIndicator(), // Loading indicator
-        );
-      },
-    );
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _signUserIn(BuildContext context) async {
+    _showLoadingDialog(context);
 
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -31,28 +34,44 @@ class Login extends StatelessWidget {
       );
       await Future.delayed(Duration(seconds: 2));
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => Home()),
+        MaterialPageRoute(builder: (context) => Main()),
       );
     } catch (e) {
       Navigator.of(context).pop();
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Login Failed'),
-            content: Text('Error: ${e.toString()}'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
+      _showErrorDialog(context, e.toString());
     }
+  }
+
+  void _showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+  }
+
+  void _showErrorDialog(BuildContext context, String error) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Login Failed'),
+          content: Text('Error: $error'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -118,9 +137,7 @@ class Login extends StatelessWidget {
               ),
               SizedBox(height: 30.0),
               ElevatedButton(
-                onPressed: () {
-                  _signUserIn(context);
-                },
+                onPressed: () => _signUserIn(context),
                 child: Text(
                   'Login',
                   style: TextStyle(fontSize: 18.0),
