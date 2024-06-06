@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:fl_chart/fl_chart.dart';
 
 class ExpensePage extends StatefulWidget {
   @override
@@ -43,15 +43,7 @@ class _ExpensePageState extends State<ExpensePage> {
 
   double totalExpense = 1650;
 
-  List<charts.Series<int, int>> data = [
-    charts.Series<int, int>(
-      id: 'Expense',
-      colorFn: (_, __) => charts.MaterialPalette.red.shadeDefault,
-      domainFn: (int expense, _) => expense,
-      measureFn: (int expense, _) => expense,
-      data: List.generate(31, (index) => 0),
-    ),
-  ];
+  List<FlSpot> data = List.generate(31, (index) => FlSpot(index.toDouble(), 0));
 
   void _addExpense(
       String category, double amount, String time, IconData icon, Color color) {
@@ -69,54 +61,38 @@ class _ExpensePageState extends State<ExpensePage> {
   }
 
   void _updateChartData() {
-    List<int> newData = List.generate(31, (index) => 0);
+    List<FlSpot> newData =
+        List.generate(31, (index) => FlSpot(index.toDouble(), 0));
 
     for (var expense in expenses) {
-      var day = int.tryParse(
-          expense['time'].split(' ')[0].replaceAll(RegExp(r'\D'), ''));
-
+      var day = int.tryParse(expense['time'].split('-')[0]);
       if (day != null && day >= 1 && day <= 31) {
-        newData[day - 1] += int.parse(expense['amount'].substring(2));
+        newData[day - 1] = FlSpot(day.toDouble(),
+            newData[day - 1].y + double.parse(expense['amount'].substring(2)));
       }
     }
 
     setState(() {
-      data = [
-        charts.Series<int, int>(
-          id: 'Expense',
-          colorFn: (_, __) => charts.MaterialPalette.red.shadeDefault,
-          domainFn: (int expense, _) => expense + 1,
-          measureFn: (int expense, _) => newData[expense],
-          data: List.generate(31, (index) => index),
-        ),
-      ];
+      data = newData;
     });
   }
 
   void _updateChartDataForMonth(int month) {
-    List<int> newData = List.generate(31, (index) => 0);
+    List<FlSpot> newData =
+        List.generate(31, (index) => FlSpot(index.toDouble(), 0));
 
     for (var expense in expenses) {
-      var day = int.tryParse(
-          expense['time'].split(' ')[0].replaceAll(RegExp(r'\D'), ''));
-      var expenseMonth = int.tryParse(
-          expense['time'].split(' ')[1].replaceAll(RegExp(r'\D'), ''));
+      var day = int.tryParse(expense['time'].split('-')[0]);
+      var expenseMonth = int.tryParse(expense['time'].split('-')[1]);
 
       if (day != null && day >= 1 && day <= 31 && expenseMonth == month) {
-        newData[day - 1] += int.parse(expense['amount'].substring(2));
+        newData[day - 1] = FlSpot(day.toDouble(),
+            newData[day - 1].y + double.parse(expense['amount'].substring(2)));
       }
     }
 
     setState(() {
-      data = [
-        charts.Series<int, int>(
-          id: 'Expense',
-          colorFn: (_, __) => charts.MaterialPalette.red.shadeDefault,
-          domainFn: (int expense, _) => expense + 1,
-          measureFn: (int expense, _) => newData[expense],
-          data: List.generate(31, (index) => index),
-        ),
-      ];
+      data = newData;
     });
   }
 
@@ -320,17 +296,26 @@ class _ExpensePageState extends State<ExpensePage> {
               SizedBox(height: 16.0),
               SizedBox(
                 height: 200.0,
-                child: charts.LineChart(
-                  data,
-                  animate: true,
-                  defaultRenderer:
-                      charts.LineRendererConfig(includePoints: true),
-                  primaryMeasureAxis: charts.NumericAxisSpec(
-                    tickProviderSpec:
-                        charts.BasicNumericTickProviderSpec(zeroBound: false),
-                  ),
-                  domainAxis: charts.NumericAxisSpec(
-                    viewport: charts.NumericExtents(1, 31),
+                child: LineChart(
+                  LineChartData(
+                    lineBarsData: [
+                      LineChartBarData(
+                        spots: data,
+                        isCurved: true,
+                        barWidth: 2,
+                        color: Colors.red,
+                        dotData: FlDotData(show: true),
+                      ),
+                    ],
+                    titlesData: FlTitlesData(
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: true),
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: true),
+                      ),
+                    ),
+                    gridData: FlGridData(show: true),
                   ),
                 ),
               ),

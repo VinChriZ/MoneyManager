@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:fl_chart/fl_chart.dart';
 import 'login.dart';
 
 void main() {
@@ -145,14 +145,11 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildSpendFrequencyGraph() {
-    var data = [
-      charts.Series<int, int>(
-        id: 'Spending',
-        colorFn: (_, __) => charts.MaterialPalette.purple.shadeDefault,
-        domainFn: (int sales, _) => sales,
-        measureFn: (int sales, _) => sales,
-        data: [5, 25, 100, 75],
-      ),
+    List<FlSpot> spots = [
+      FlSpot(0, 5),
+      FlSpot(1, 25),
+      FlSpot(2, 100),
+      FlSpot(3, 75),
     ];
 
     return Container(
@@ -170,9 +167,28 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: charts.LineChart(
-        data,
-        animate: true,
+      child: LineChart(
+        LineChartData(
+          lineBarsData: [
+            LineChartBarData(
+              spots: spots,
+              isCurved: true,
+              color: Colors.purple,
+              barWidth: 4,
+              belowBarData: BarAreaData(show: false),
+              dotData: FlDotData(show: true),
+            ),
+          ],
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: true),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: true),
+            ),
+          ),
+          gridData: FlGridData(show: true),
+        ),
       ),
     );
   }

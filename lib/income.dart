@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:fl_chart/fl_chart.dart';
 
 class IncomePage extends StatefulWidget {
   @override
@@ -16,6 +16,21 @@ class IncomeData {
 
 class _IncomePageState extends State<IncomePage> {
   int _currentMonth = DateTime.now().month;
+
+  final List<String> monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+  ];
 
   List<Map<String, dynamic>> incomes = [
     {
@@ -43,15 +58,7 @@ class _IncomePageState extends State<IncomePage> {
 
   double totalIncome = 5000;
 
-  List<charts.Series<int, int>> data = [
-    charts.Series<int, int>(
-      id: 'Income',
-      colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-      domainFn: (int income, _) => income,
-      measureFn: (int income, _) => income,
-      data: List.generate(31, (index) => 0),
-    ),
-  ];
+  List<FlSpot> data = List.generate(31, (index) => FlSpot(index.toDouble(), 0));
 
   void _addIncome(
       String category, double amount, String time, IconData icon, Color color) {
@@ -69,54 +76,42 @@ class _IncomePageState extends State<IncomePage> {
   }
 
   void _updateChartData() {
-    List<int> newData = List.generate(31, (index) => 0);
+    List<FlSpot> newData =
+        List.generate(31, (index) => FlSpot(index.toDouble(), 0));
 
     for (var income in incomes) {
       var day = int.tryParse(
-          income['time'].split(' ')[0].replaceAll(RegExp(r'\D'), ''));
+          income['time'].split('-')[0].replaceAll(RegExp(r'\D'), ''));
 
       if (day != null && day >= 1 && day <= 31) {
-        newData[day - 1] += int.parse(income['amount'].substring(2));
+        newData[day - 1] = FlSpot(day.toDouble(),
+            newData[day - 1].y + int.parse(income['amount'].substring(2)));
       }
     }
 
     setState(() {
-      data = [
-        charts.Series<int, int>(
-          id: 'Income',
-          colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-          domainFn: (int income, _) => income + 1,
-          measureFn: (int income, _) => newData[income],
-          data: List.generate(31, (index) => index),
-        ),
-      ];
+      data = newData;
     });
   }
 
   void _updateChartDataForMonth(int month) {
-    List<int> newData = List.generate(31, (index) => 0);
+    List<FlSpot> newData =
+        List.generate(31, (index) => FlSpot(index.toDouble(), 0));
 
     for (var income in incomes) {
       var day = int.tryParse(
-          income['time'].split(' ')[0].replaceAll(RegExp(r'\D'), ''));
+          income['time'].split('-')[0].replaceAll(RegExp(r'\D'), ''));
       var incomeMonth = int.tryParse(
-          income['time'].split(' ')[1].replaceAll(RegExp(r'\D'), ''));
+          income['time'].split('-')[1].replaceAll(RegExp(r'\D'), ''));
 
       if (day != null && day >= 1 && day <= 31 && incomeMonth == month) {
-        newData[day - 1] += int.parse(income['amount'].substring(2));
+        newData[day - 1] = FlSpot(day.toDouble(),
+            newData[day - 1].y + int.parse(income['amount'].substring(2)));
       }
     }
 
     setState(() {
-      data = [
-        charts.Series<int, int>(
-          id: 'Income',
-          colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-          domainFn: (int income, _) => income + 1,
-          measureFn: (int income, _) => newData[income],
-          data: List.generate(31, (index) => index),
-        ),
-      ];
+      data = newData;
     });
   }
 
@@ -306,9 +301,18 @@ class _IncomePageState extends State<IncomePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(
-                    onPressed: _showPreviousMonth,
-                    child: Text('Previous'),
+                  Flexible(
+                    // Wrap the "Previous" button with Flexible
+                    child: ElevatedButton(
+                      onPressed: _showPreviousMonth,
+                      child: Text('Back'),
+                    ),
+                  ),
+                  SizedBox(width: 16.0),
+                  Text(
+                    monthNames[_currentMonth -
+                        1], // Display the name of the current month
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(width: 16.0),
                   ElevatedButton(
@@ -416,16 +420,6 @@ class _IncomePageState extends State<IncomePage> {
   }
 
   Widget _buildIncomeFrequencyGraph() {
-    List<charts.Series<IncomeData, int>> series = [
-      charts.Series<IncomeData, int>(
-        id: "Income",
-        data: _generateIncomeData(),
-        domainFn: (IncomeData income, _) => income.day,
-        measureFn: (IncomeData income, _) => income.amount,
-        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-      )
-    ];
-
     return Container(
       height: 200.0,
       padding: EdgeInsets.all(16.0),
@@ -441,31 +435,27 @@ class _IncomePageState extends State<IncomePage> {
           ),
         ],
       ),
-      child: charts.LineChart(
-        series,
-        animate: true,
-        defaultRenderer: charts.LineRendererConfig(
-          includePoints: true,
+      child: LineChart(
+        LineChartData(
+          lineBarsData: [
+            LineChartBarData(
+              spots: data,
+              isCurved: true,
+              color: Colors.blue,
+              barWidth: 4,
+              belowBarData: BarAreaData(show: false),
+              dotData: FlDotData(show: true),
+            ),
+          ],
+          titlesData: FlTitlesData(
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: true),
+            ),
+          ),
+          gridData: FlGridData(show: true),
         ),
       ),
     );
-  }
-
-  List<IncomeData> _generateIncomeData() {
-    List<IncomeData> incomeData =
-        List.generate(31, (index) => IncomeData(index + 1, 0));
-
-    for (var income in incomes) {
-      var day = int.tryParse(
-        income['time'].split(' ')[0].replaceAll(RegExp(r'\D'), ''),
-      );
-
-      if (day != null && day >= 1 && day <= 31) {
-        incomeData[day - 1].amount += int.parse(income['amount'].substring(2));
-      }
-    }
-
-    return incomeData;
   }
 
   Widget _buildRecentIncomes() {
