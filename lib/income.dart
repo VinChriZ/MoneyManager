@@ -3,6 +3,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class IncomePage extends StatefulWidget {
+  final documentId;
+  IncomePage({Key? key, this.documentId}):super(key: key);
+
   @override
   _IncomePageState createState() => _IncomePageState();
 }
@@ -13,6 +16,7 @@ class IncomeData {
 
   IncomeData(this.day, this.amount);
 }
+
 
 class _IncomePageState extends State<IncomePage> {
   int _currentMonth = DateTime.now().month;

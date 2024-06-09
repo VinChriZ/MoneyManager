@@ -1,10 +1,19 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_moneymanager/home.dart';
 import 'package:flutter_moneymanager/login.dart';
+import 'package:http/http.dart' as http;
 
-class Register extends StatelessWidget {
+class Register extends StatefulWidget {
   Register({super.key});
 
+  @override
+  State<Register> createState() => _RegisterState();
+}
+
+class _RegisterState extends State<Register> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -14,6 +23,23 @@ class Register extends StatelessWidget {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
+      
+      //masukin regist user ke realtime database
+      final url = Uri.https(
+        'ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app',
+        'users.json',
+      );
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'email':emailController.text,
+          'password':passwordController.text,
+        }),
+      );
+
       showDialog(
         context: context,
         builder: (BuildContext context) {

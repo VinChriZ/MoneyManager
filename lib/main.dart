@@ -25,16 +25,26 @@ class MyApp extends StatelessWidget {
 }
 
 class Main extends StatefulWidget {
+  String? documentID;
+  Main({Key? mykey, this.documentID}):super(key: mykey);
+
+
   @override
   _MainState createState() => _MainState();
 }
 
 class _MainState extends State<Main> {
   int _selectedIndex = 0;
-  final List<Widget> _pages = [
-    Home(),
-    ProfilePage(),
-  ];
+  late List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      HomeScreen(documentID: widget.documentID,),
+      ProfilePage(),
+    ];
+  }
 
   void _onTap(int index) {
     setState(() {
@@ -87,7 +97,7 @@ class _MainState extends State<Main> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => IncomePage()),
+                MaterialPageRoute(builder: (context) => IncomePage(documentId: widget.documentID,)),
               );
             },
           ),

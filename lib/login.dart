@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_moneymanager/home.dart';
 import 'package:flutter_moneymanager/main.dart';
+import 'package:http/http.dart' as http;
 import 'register.dart';
 
 class Login extends StatefulWidget {
@@ -28,19 +31,39 @@ class _LoginState extends State<Login> {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
+      //buat ambil documentID
+      String? documentId = await checkEmailInDatabase(emailController.text.trim());
+
       Navigator.of(context).pop(); // Close the loading indicator dialog
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login successful')),
       );
       await Future.delayed(Duration(seconds: 2));
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => Main()),
+        MaterialPageRoute(builder: (context) => Main(documentID: documentId,)),
       );
     } catch (e) {
       Navigator.of(context).pop();
       _showErrorDialog(context, e.toString());
     }
   }
+
+  //function untuk cek email ada atau tidak di database
+  Future<String?> checkEmailInDatabase(String email) async {
+  final url = Uri.https(
+    'ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app',
+    'users.json',
+  );
+  final response = await http.get(url);
+  final responseData = jsonDecode(response.body);
+
+  for (var key in responseData.keys) {
+    if (responseData[key]['email'] == email) {
+      return key; // Return the document ID if email is found
+    }
+  }
+  return null; // Return null if email is not found
+}
 
   void _showLoadingDialog(BuildContext context) {
     showDialog(
