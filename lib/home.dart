@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -7,22 +5,13 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:http/http.dart' as http;
 import 'login.dart';
 
+import 'user.dart' as userDart; 
+
 void main() {
-  runApp(Home());
+  runApp(HomeScreen());
 }
 
-class Home extends StatelessWidget {
-  
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: HomeScreen(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
-
+// ignore: must_be_immutable
 class HomeScreen extends StatefulWidget {
   String? documentID;
   HomeScreen({Key? key, this.documentID}):super(key: key);
@@ -32,6 +21,23 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  userDart.User? user;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData(); // Fetch user data when the widget initializes
+  }
+
+  // Function to fetch user data from Firebase
+  void fetchUserData() async {
+    String email = '-O-a-zHsWMn6fnseIua8'; // Replace with actual user email
+    userDart.User? fetchedUser = await userDart.User.fetchUserDataFromFirebase(email);
+
+    setState(() {
+      user = fetchedUser;
+    });
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -42,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            CircleAvatar(
+            const CircleAvatar(
               backgroundImage: NetworkImage('https://via.placeholder.com/150'),
             ),
             DropdownButton<String>(
@@ -75,21 +81,23 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            
+            // Account Balance
             children: [
               Text('Account Balance', style: TextStyle(color: Colors.grey)),
-              Text('\$9400',
-                  style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
+              Text('${user?.name}', style: TextStyle(color: Color.fromARGB(255, 0, 255, 4))),
+              Text('\$${user?.money ?? 0}', style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
               SizedBox(height: 16.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: _buildSummaryCard('Income', '\$5000', Colors.green,
+                    child: _buildSummaryCard('Income', '\$${user?.income ?? 0}', Colors.green,
                         FontAwesomeIcons.arrowDown),
                   ),
                   SizedBox(width: 16.0),
                   Expanded(
-                    child: _buildSummaryCard('Expenses', '\$1200', Colors.red,
+                    child: _buildSummaryCard('Expenses', '\$${user?.expenses ?? 0}', Colors.red,
                         FontAwesomeIcons.arrowUp),
                   ),
                 ],
