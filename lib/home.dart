@@ -1,11 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_moneymanager/fetch_data.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:http/http.dart' as http;
 import 'login.dart';
+import 'user.dart';
 
-import 'user.dart' as userDart; 
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 void main() {
   runApp(HomeScreen());
@@ -14,31 +16,30 @@ void main() {
 // ignore: must_be_immutable
 class HomeScreen extends StatefulWidget {
   String? documentID;
-  HomeScreen({Key? key, this.documentID}):super(key: key);
+  HomeScreen({Key? key,  this.documentID}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  userDart.User? user;
+  List<User> listUsers = [];
+  late UserObject userFound;
 
-  @override
+   @override
   void initState() {
     super.initState();
-    fetchUserData(); // Fetch user data when the widget initializes
+    fetchUser();
   }
 
-  // Function to fetch user data from Firebase
-  void fetchUserData() async {
-    String email = '-O-a-zHsWMn6fnseIua8'; // Replace with actual user email
-    userDart.User? fetchedUser = await userDart.User.fetchUserDataFromFirebase(email);
+  Future<void> fetchUser() async {
+  String documentID = widget.documentID ?? '-O-a-zHsWMn6fnseIua8'; // Default jason@gmail.com
+  UserObject? fetchedUser = await fetchUserByUID(documentID);
+  setState(() {
+    userFound = fetchedUser!;
+  });
+}
 
-    setState(() {
-      user = fetchedUser;
-    });
-  }
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,29 +82,31 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            
+
             // Account Balance
             children: [
               Text('Account Balance', style: TextStyle(color: Colors.grey)),
-              Text('${user?.name}', style: TextStyle(color: Color.fromARGB(255, 0, 255, 4))),
-              Text('\$${user?.money ?? 0}', style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
+              Text('${userFound.name ?? "Loading..."} ',
+                  style: TextStyle(color: Color.fromARGB(255, 0, 255, 4))),
+              Text('\$${userFound.money ?? "No Money T-T"}',
+                  style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
               SizedBox(height: 16.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: _buildSummaryCard('Income', '\$${user?.income ?? 0}', Colors.green,
+                    child: _buildSummaryCard('Income', '\$${userFound.income ?? 0}', Colors.green,
                         FontAwesomeIcons.arrowDown),
                   ),
                   SizedBox(width: 16.0),
                   Expanded(
-                    child: _buildSummaryCard('Expenses', '\$${user?.expenses ?? 0}', Colors.red,
+                    child: _buildSummaryCard('Expenses', '\$${userFound.expenses}', Colors.red,
                         FontAwesomeIcons.arrowUp),
                   ),
                 ],
               ),
               SizedBox(height: 16.0),
-              Text('Spend Frequency',
+              const Text('Spend Frequency',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               SizedBox(height: 16.0),
               _buildSpendFrequencyGraph(),
@@ -111,6 +114,10 @@ class _HomeScreenState extends State<HomeScreen> {
               _buildTimeFilter(),
               SizedBox(height: 16.0),
               _buildRecentTransactions(),
+
+              // Display the user's email
+              SizedBox(height: 16.0),
+              Text('Email : ${userFound.email}', style: TextStyle(fontSize: 18)),
             ],
           ),
         ),
@@ -124,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Confirm Logout'),
-          content: Text('Are you sure you want to logout?'),
+          content: const Text('Are you sure you want to logout?'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -254,41 +261,91 @@ class _HomeScreenState extends State<HomeScreen> {
         'amount': '-\$80',
         'time': '03:30 PM',
         'icon': Icons.subscriptions,
-        'color': Colors.purple
+        'color': Colors.blue
       },
       {
-        'category': 'Food',
-        'amount': '-\$32',
-        'time': '07:30 PM',
-        'icon': Icons.restaurant,
-        'color': Colors.red
+        'category': 'Salary',
+        'amount': '+\$2000',
+        'time': '09:00 AM',
+        'icon': Icons.attach_money,
+        'color': Colors.green
       },
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Recent Transactions',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            TextButton(onPressed: () {}, child: Text('See All')),
-          ],
-        ),
-        ...transactions.map((transaction) {
-          return ListTile(
-            leading: CircleAvatar(
-              backgroundColor: transaction['color'] as Color,
-              child: Icon(transaction['icon'] as IconData, color: Colors.white),
+      children: transactions.map((transaction) {
+        return ListTile(
+          leading: CircleAvatar(
+            backgroundColor: transaction['color'] as Color?,
+            child: Icon(transaction['icon'] as IconData?),
+          ),
+          title: Text(transaction['category'] as String? ?? ''),
+          subtitle: Text(transaction['time'] as String? ?? ''),
+          trailing: Text(
+            transaction['amount'] as String? ?? '',
+            style: TextStyle(
+              color: transaction['amount'].toString().startsWith('+')
+                  ? Colors.green
+                  : Colors.red,
             ),
-            title: Text(transaction['category'] as String),
-            subtitle: Text(transaction['time'] as String),
-            trailing: Text(transaction['amount'] as String,
-                style: TextStyle(color: Colors.red)),
-          );
-        }).toList(),
-      ],
+          ),
+        );
+      }).toList(),
     );
+  }
+
+  // Fetch User data
+  void fetchUsers() async {
+    print("FETCH USERS");
+    const url =
+        "https://ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app/users.json";
+    final uri = Uri.parse(url);
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final List<UserObject> loadedUsers = [];
+
+      data.forEach((key, value) {
+        if (value != null) {
+          final userFound = UserObject.fromJson(value);
+          loadedUsers.add(userFound);
+          print("Key : $key + Value : $value");
+        } else {
+          print("Value Empty");
+        }
+      });
+
+      print("fetchUsers completed");
+    } else {
+      print("Failed to load data from Firebase");
+    }
+  }
+
+  Future<UserObject?> fetchUserByUID(String uid) async {
+    print("FETCH USERS BY UID");
+    final url =
+        "https://ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app/users/$uid.json";
+    final uri = Uri.parse(url);
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+
+      if (data != null) {
+        final userFound = UserObject.fromJson(data);
+        print("User Found: ${userFound.name}, ${userFound.email}, ${userFound.uid}");
+        return userFound;
+      } 
+      else {
+        print("No user data found for UID: $uid");
+        return null;
+      }
+    } 
+    else {
+      print("Failed to load data from Firebase");
+      return null;
+    }
   }
 }
