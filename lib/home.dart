@@ -16,8 +16,19 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   double totalIncome = 0.0;
   double totalExpenses = 0.0;
+  List<Map<String, dynamic>> transactions = [];
   bool isLoading = true;
+  String selectedTimeFilter = 'Day';
 
+  // Define your categories map here
+  final Map<String, Map<String, dynamic>> categories = {
+    'Salary': {'icon': Icons.money, 'color': Colors.blue},
+    'Freelance': {'icon': Icons.laptop_mac, 'color': Colors.green},
+    'Investments': {'icon': Icons.show_chart, 'color': Colors.orange},
+    'Gifts': {'icon': Icons.card_giftcard, 'color': Colors.purple},
+    'Rent': {'icon': Icons.home, 'color': Colors.brown},
+    'Other': {'icon': Icons.category, 'color': Colors.grey},
+  };
   @override
   void initState() {
     super.initState();
@@ -27,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> fetchFinancialData() async {
     await fetchTotalIncome();
     await fetchTotalExpenses();
+    await fetchTransactions();
     setState(() {
       isLoading = false;
     });
@@ -67,6 +79,56 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       totalExpenses = expense;
+    });
+  }
+
+  Future<void> fetchTransactions() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    String uid = user.uid;
+    CollectionReference incomesRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('incomes');
+
+    CollectionReference expensesRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('expenses');
+
+    QuerySnapshot incomeSnapshot = await incomesRef.get();
+    QuerySnapshot expenseSnapshot = await expensesRef.get();
+
+    List<Map<String, dynamic>> fetchedTransactions = [];
+
+    incomeSnapshot.docs.forEach((doc) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      fetchedTransactions.add({
+        'type': 'income',
+        'amount': data['amount'],
+        'time': data['time'],
+        'icon': FontAwesomeIcons.arrowDown,
+        'color': Colors.green,
+      });
+    });
+
+    expenseSnapshot.docs.forEach((doc) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      fetchedTransactions.add({
+        'type': 'expense',
+        'amount': data['amount'],
+        'time': data['time'],
+        'icon': FontAwesomeIcons.arrowUp,
+        'color': Colors.red,
+      });
+    });
+
+    // Sort transactions by time
+    fetchedTransactions.sort((a, b) => a['time'].compareTo(b['time']));
+
+    setState(() {
+      transactions = fetchedTransactions;
     });
   }
 
@@ -137,8 +199,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                     SizedBox(height: 16.0),
-                    _buildSpendFrequencyGraph(),
-                    SizedBox(height: 16.0),
                     _buildTimeFilter(),
                     SizedBox(height: 16.0),
                     _buildRecentTransactions(),
@@ -197,55 +257,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSpendFrequencyGraph() {
-    // Example data
-    List<FlSpot> spots = [
-      FlSpot(0, 5),
-      FlSpot(1, 25),
-      FlSpot(2, 100),
-      FlSpot(3, 75),
-    ];
-
-    return Container(
-      height: 200.0,
-      padding: EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: LineChart(
-        LineChartData(
-          gridData: FlGridData(show: false),
-          borderData: FlBorderData(
-            show: true,
-            border: Border.all(color: Colors.black26),
-          ),
-          // titlesData: FlTitlesData(
-          //   leftTitles: SideTitles(showTitles: true),
-          //   bottomTitles: SideTitles(showTitles: true),
-          // ),
-          lineBarsData: [
-            LineChartBarData(
-              spots: spots,
-              isCurved: true,
-              color: Colors.blue,
-              barWidth: 4,
-              belowBarData: BarAreaData(show: false),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildTimeFilter() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -253,7 +264,6 @@ class _HomeScreenState extends State<HomeScreen> {
         _buildTimeFilterChip('Day'),
         _buildTimeFilterChip('Week'),
         _buildTimeFilterChip('Month'),
-        _buildTimeFilterChip('Year'),
       ],
     );
   }
@@ -261,8 +271,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildTimeFilterChip(String label) {
     return ChoiceChip(
       label: Text(label),
-      selected: false,
+      selected: selectedTimeFilter == label,
       onSelected: (bool selected) {
+        setState(() {
+          selectedTimeFilter = label;
+        });
         // Handle chip selection
       },
     );
@@ -278,20 +291,37 @@ class _HomeScreenState extends State<HomeScreen> {
         ListView.builder(
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
-          itemCount: 3, // Example item count
+          itemCount: transactions.length,
           itemBuilder: (context, index) {
+            var transaction = transactions[index];
+            IconData transactionIcon;
+            Color transactionColor;
+            String transactionCategory;
+            if (transaction['type'] == 'income') {
+              transactionCategory = 'Income';
+            } else {
+              transactionCategory = 'Expense';
+            }
+
+            if (categories.containsKey(transaction['category'])) {
+              transactionIcon = categories[transaction['category']]?['icon'];
+              transactionColor = categories[transaction['category']]?['color'];
+            } else {
+              // Use a default icon when the category is not found
+              transactionIcon = Icons.category; // or any other default icon
+              transactionColor = Colors.grey; // or any other default color
+            }
+
             return ListTile(
-              leading: CircleAvatar(
-                backgroundImage:
-                    NetworkImage('https://via.placeholder.com/150'),
+              leading: FaIcon(
+                transactionIcon,
+                color: transactionColor,
               ),
-              title: Text('Transaction $index'),
-              subtitle: Text('Transaction details here...'),
-              trailing: Text(
-                '-\$50',
-                style:
-                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-              ),
+              title: Text(transactionCategory),
+              subtitle: Text(transaction['time']),
+              trailing: Text('\$${transaction['amount']}',
+                  style: TextStyle(
+                      color: transactionColor, fontWeight: FontWeight.bold)),
             );
           },
         ),
