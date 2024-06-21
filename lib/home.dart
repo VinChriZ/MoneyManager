@@ -1,46 +1,71 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:http/http.dart' as http;
 import 'login.dart';
 
-import 'user.dart' as userDart; 
-
-void main() {
-  runApp(HomeScreen());
-}
-
-// ignore: must_be_immutable
 class HomeScreen extends StatefulWidget {
-  String? documentID;
-  HomeScreen({Key? key, this.documentID}):super(key: key);
+  final String? documentID;
+  HomeScreen({this.documentID});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  userDart.User? user;
+  double totalIncome = 0.0;
+  double totalExpenses = 0.0;
 
   @override
   void initState() {
     super.initState();
-    fetchUserData(); // Fetch user data when the widget initializes
+    fetchTotalIncome();
+    fetchTotalExpenses();
   }
 
-  // Function to fetch user data from Firebase
-  void fetchUserData() async {
-    String email = '-O-a-zHsWMn6fnseIua8'; // Replace with actual user email
-    userDart.User? fetchedUser = await userDart.User.fetchUserDataFromFirebase(email);
+  void fetchTotalIncome() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    String uid = user.uid;
+    CollectionReference incomesRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('incomes');
+
+    QuerySnapshot snapshot = await incomesRef.get();
+    double income = snapshot.docs.fold(0.0,
+        (sum, doc) => sum + (doc.data() as Map<String, dynamic>)['amount']);
 
     setState(() {
-      user = fetchedUser;
+      totalIncome = income;
     });
   }
-  
+
+  void fetchTotalExpenses() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    String uid = user.uid;
+    CollectionReference expensesRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('expenses');
+
+    QuerySnapshot snapshot = await expensesRef.get();
+    double expense = snapshot.docs.fold(0.0,
+        (sum, doc) => sum + (doc.data() as Map<String, dynamic>)['amount']);
+
+    setState(() {
+      totalExpenses = expense;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    double accountBalance = totalIncome - totalExpenses;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -51,17 +76,9 @@ class _HomeScreenState extends State<HomeScreen> {
             const CircleAvatar(
               backgroundImage: NetworkImage('https://via.placeholder.com/150'),
             ),
-            DropdownButton<String>(
-              value: 'October',
-              icon: Icon(Icons.keyboard_arrow_down),
-              items: <String>['October', 'September', 'August']
-                  .map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (_) {},
+            Text(
+              'Home',
+              style: TextStyle(color: Colors.black),
             ),
             Icon(Icons.notifications, color: Colors.purple),
           ],
@@ -81,24 +98,22 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            
-            // Account Balance
             children: [
               Text('Account Balance', style: TextStyle(color: Colors.grey)),
-              Text('${user?.name}', style: TextStyle(color: Color.fromARGB(255, 0, 255, 4))),
-              Text('\$${user?.money ?? 0}', style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
+              Text('\$$accountBalance',
+                  style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
               SizedBox(height: 16.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: _buildSummaryCard('Income', '\$${user?.income ?? 0}', Colors.green,
-                        FontAwesomeIcons.arrowDown),
+                    child: _buildSummaryCard('Income', '\$$totalIncome',
+                        Colors.green, FontAwesomeIcons.arrowDown),
                   ),
                   SizedBox(width: 16.0),
                   Expanded(
-                    child: _buildSummaryCard('Expenses', '\$${user?.expenses ?? 0}', Colors.red,
-                        FontAwesomeIcons.arrowUp),
+                    child: _buildSummaryCard('Expenses', '\$$totalExpenses',
+                        Colors.red, FontAwesomeIcons.arrowUp),
                   ),
                 ],
               ),
@@ -167,6 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSpendFrequencyGraph() {
+    // Example data
     List<FlSpot> spots = [
       FlSpot(0, 5),
       FlSpot(1, 25),
@@ -191,25 +207,24 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: LineChart(
         LineChartData(
+          gridData: FlGridData(show: false),
+          borderData: FlBorderData(
+            show: true,
+            border: Border.all(color: Colors.black26),
+          ),
+          // titlesData: FlTitlesData(
+          //   leftTitles: SideTitles(showTitles: true),
+          //   bottomTitles: SideTitles(showTitles: true),
+          // ),
           lineBarsData: [
             LineChartBarData(
               spots: spots,
               isCurved: true,
-              color: Colors.purple,
+              color: Colors.blue,
               barWidth: 4,
               belowBarData: BarAreaData(show: false),
-              dotData: FlDotData(show: true),
             ),
           ],
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: true),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: true),
-            ),
-          ),
-          gridData: FlGridData(show: true),
         ),
       ),
     );
@@ -217,77 +232,53 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildTimeFilter() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildTimeFilterButton('Today'),
-        _buildTimeFilterButton('Week'),
-        _buildTimeFilterButton('Month'),
-        _buildTimeFilterButton('Year'),
+        _buildTimeFilterChip('Day'),
+        _buildTimeFilterChip('Week'),
+        _buildTimeFilterChip('Month'),
+        _buildTimeFilterChip('Year'),
       ],
     );
   }
 
-  Widget _buildTimeFilterButton(String text) {
-    return ElevatedButton(
-      onPressed: () {},
-      child: Text(text),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: text == 'Today' ? Colors.yellow : Colors.white,
-        foregroundColor: text == 'Today' ? Colors.black : Colors.grey,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-      ),
+  Widget _buildTimeFilterChip(String label) {
+    return ChoiceChip(
+      label: Text(label),
+      selected: false,
+      onSelected: (bool selected) {
+        // Handle chip selection
+      },
     );
   }
 
   Widget _buildRecentTransactions() {
-    final transactions = [
-      {
-        'category': 'Shopping',
-        'amount': '-\$120',
-        'time': '10:00 AM',
-        'icon': Icons.shopping_bag,
-        'color': Colors.orange
-      },
-      {
-        'category': 'Subscription',
-        'amount': '-\$80',
-        'time': '03:30 PM',
-        'icon': Icons.subscriptions,
-        'color': Colors.purple
-      },
-      {
-        'category': 'Food',
-        'amount': '-\$32',
-        'time': '07:30 PM',
-        'icon': Icons.restaurant,
-        'color': Colors.red
-      },
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Recent Transactions',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            TextButton(onPressed: () {}, child: Text('See All')),
-          ],
+        Text('Recent Transactions',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        SizedBox(height: 16.0),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: 3, // Example item count
+          itemBuilder: (context, index) {
+            return ListTile(
+              leading: CircleAvatar(
+                backgroundImage:
+                    NetworkImage('https://via.placeholder.com/150'),
+              ),
+              title: Text('Transaction $index'),
+              subtitle: Text('Transaction details here...'),
+              trailing: Text(
+                '-\$50',
+                style:
+                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              ),
+            );
+          },
         ),
-        ...transactions.map((transaction) {
-          return ListTile(
-            leading: CircleAvatar(
-              backgroundColor: transaction['color'] as Color,
-              child: Icon(transaction['icon'] as IconData, color: Colors.white),
-            ),
-            title: Text(transaction['category'] as String),
-            subtitle: Text(transaction['time'] as String),
-            trailing: Text(transaction['amount'] as String,
-                style: TextStyle(color: Colors.red)),
-          );
-        }).toList(),
       ],
     );
   }
