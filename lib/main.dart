@@ -27,9 +27,8 @@ class MyApp extends StatelessWidget {
 }
 
 class Main extends StatefulWidget {
-  String? documentID;
-  Main({Key? mykey, this.documentID}):super(key: mykey);
-
+  final String? documentID;
+  Main({Key? mykey, this.documentID}) : super(key: mykey);
 
   @override
   _MainState createState() => _MainState();
@@ -43,7 +42,7 @@ class _MainState extends State<Main> {
   void initState() {
     super.initState();
     _pages = [
-      HomeScreen(documentID: widget.documentID,),
+      HomeScreen(documentID: widget.documentID),
       ProfilePage(),
     ];
   }
@@ -85,21 +84,16 @@ class _MainState extends State<Main> {
         overlayOpacity: 0.5,
         children: [
           SpeedDialChild(
-            child: Icon(Icons.compare_arrows, color: Colors.white),
-            backgroundColor: Colors.blue,
-            label: 'Transfer',
-            onTap: () {
-              // Handle transfer action
-            },
-          ),
-          SpeedDialChild(
             child: Icon(Icons.arrow_downward, color: Colors.white),
             backgroundColor: Colors.green,
             label: 'Income',
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => IncomePage(documentId: widget.documentID,)),
+                MaterialPageRoute(
+                  builder: (context) =>
+                      IncomePage(documentId: widget.documentID),
+                ),
               );
             },
           ),
