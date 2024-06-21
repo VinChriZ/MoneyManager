@@ -16,15 +16,23 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   double totalIncome = 0.0;
   double totalExpenses = 0.0;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    fetchTotalIncome();
-    fetchTotalExpenses();
+    fetchFinancialData();
   }
 
-  void fetchTotalIncome() async {
+  Future<void> fetchFinancialData() async {
+    await fetchTotalIncome();
+    await fetchTotalExpenses();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<void> fetchTotalIncome() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
@@ -43,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void fetchTotalExpenses() async {
+  Future<void> fetchTotalExpenses() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
@@ -93,43 +101,51 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Account Balance', style: TextStyle(color: Colors.grey)),
-              Text('\$$accountBalance',
-                  style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
-              SizedBox(height: 16.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: _buildSummaryCard('Income', '\$$totalIncome',
-                        Colors.green, FontAwesomeIcons.arrowDown),
-                  ),
-                  SizedBox(width: 16.0),
-                  Expanded(
-                    child: _buildSummaryCard('Expenses', '\$$totalExpenses',
-                        Colors.red, FontAwesomeIcons.arrowUp),
-                  ),
-                ],
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Account Balance',
+                        style: TextStyle(color: Colors.grey)),
+                    Text('\$$accountBalance',
+                        style: TextStyle(
+                            fontSize: 36, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 16.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: _buildSummaryCard('Income', '\$$totalIncome',
+                              Colors.green, FontAwesomeIcons.arrowDown),
+                        ),
+                        SizedBox(width: 16.0),
+                        Expanded(
+                          child: _buildSummaryCard(
+                              'Expenses',
+                              '\$$totalExpenses',
+                              Colors.red,
+                              FontAwesomeIcons.arrowUp),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16.0),
+                    Text('Spend Frequency',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 16.0),
+                    _buildSpendFrequencyGraph(),
+                    SizedBox(height: 16.0),
+                    _buildTimeFilter(),
+                    SizedBox(height: 16.0),
+                    _buildRecentTransactions(),
+                  ],
+                ),
               ),
-              SizedBox(height: 16.0),
-              Text('Spend Frequency',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 16.0),
-              _buildSpendFrequencyGraph(),
-              SizedBox(height: 16.0),
-              _buildTimeFilter(),
-              SizedBox(height: 16.0),
-              _buildRecentTransactions(),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 
