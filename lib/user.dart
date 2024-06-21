@@ -1,57 +1,62 @@
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:firebase_database/firebase_database.dart';
 
-class UserObject {
-  final String email;
-  final int expenses;
-  final int income;
-  final String money;
-  final String name;
-  final String uid;
+class User {
+  String uid;
+  String name;
+  String email;
+  double money;
+  double income;
+  double expenses;
 
-  UserObject({
-    required this.email,
-    required this.expenses,
-    required this.income,
-    required this.money,
-    required this.name,
-    required this.uid,
-  });
+  User(
+    {
+      required this.uid, 
+      required this.name, 
+      required this.email, 
+      required this.money,
+      this.income = 0,
+      this.expenses = 0
+    }
+  );
 
-  factory UserObject.fromJson(Map<String, dynamic> json) {
-    return UserObject(
-      email: json['email'],
-      expenses: json['expenses'],
-      income: json['income'],
-      money: json['money'],
-      name: json['name'],
-      uid: json['uid'],
+    // Convert a User object into a map object
+  Map<String, dynamic> toMap() {
+    return {
+      'uid': uid,
+      'name': name,
+      'email': email,
+      'money': money,
+      'income': income,
+      'expenses': expenses
+    };
+  }
+
+    // Create a User object from a map object
+  factory User.fromMap(Map<String, dynamic> map) {
+    return User(
+      uid: map['uid'],
+      name: map['name'],
+      email: map['email'],
+      money: map['money'],
+      income: map['income'],
+      expenses: map['expenses']
     );
   }
 
-  void fetchUsers() async {
-    const url =
-        "https://ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app/users.json";
-    final uri = Uri.parse(url);
-    final response = await http.get(uri);
+  // Fetch user data  from Firebase Realtime Database
+  static Future<User?> fetchUserDataFromFirebase(String email) async {
+    DatabaseReference userRef = FirebaseDatabase.instance.reference().child('users').child(email);
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      final List<UserObject> loadedUsers = [];
+    // Fetch data
+    DataSnapshot snapshot = (await userRef.once()) as DataSnapshot;
 
-      data.forEach((key, value) {
-        if (value != null) {
-          final user = UserObject.fromJson(value);
-          loadedUsers.add(user);
-        } else {
-          print("Value Empty");
-        }
-      });
-
-      print("fetchUsers completed");
-    } else {
-      print("Failed to load data from Firebase");
+    // Handle null case
+    if (snapshot.value == null) {
+      return null;
     }
-  }
 
+     // Handle non-null case
+    Map<String, dynamic> userData = Map<String, dynamic>.from(snapshot.value as Map<dynamic, dynamic>);
+    return User.fromMap(userData);
+  }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_moneymanager/auth_page.dart';
-import 'package:flutter_moneymanager/fetch_data.dart';
 import 'package:flutter_moneymanager/home.dart';
 import 'package:flutter_moneymanager/login.dart';
 import 'package:flutter_moneymanager/profile.dart';
@@ -9,7 +8,6 @@ import 'package:flutter_moneymanager/expense.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-// import 'coba.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,9 +25,8 @@ class MyApp extends StatelessWidget {
 }
 
 class Main extends StatefulWidget {
-  String? documentID;
-  Main({Key? mykey, this.documentID}):super(key: mykey);
-
+  final String? documentID;
+  Main({Key? mykey, this.documentID}) : super(key: mykey);
 
   @override
   _MainState createState() => _MainState();
@@ -43,7 +40,7 @@ class _MainState extends State<Main> {
   void initState() {
     super.initState();
     _pages = [
-      HomeScreen(documentID: widget.documentID,),
+      HomeScreen(documentID: widget.documentID),
       ProfilePage(),
     ];
   }
@@ -85,21 +82,16 @@ class _MainState extends State<Main> {
         overlayOpacity: 0.5,
         children: [
           SpeedDialChild(
-            child: Icon(Icons.compare_arrows, color: Colors.white),
-            backgroundColor: Colors.blue,
-            label: 'Transfer',
-            onTap: () {
-              // Handle transfer action
-            },
-          ),
-          SpeedDialChild(
             child: Icon(Icons.arrow_downward, color: Colors.white),
             backgroundColor: Colors.green,
             label: 'Income',
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => IncomePage(documentId: widget.documentID,)),
+                MaterialPageRoute(
+                  builder: (context) =>
+                      IncomePage(documentId: widget.documentID),
+                ),
               );
             },
           ),
