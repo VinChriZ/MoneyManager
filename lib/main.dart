@@ -7,6 +7,8 @@ import 'package:flutter_moneymanager/income.dart';
 import 'package:flutter_moneymanager/expense.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
+import 'data_user.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -18,8 +20,11 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: AuthPage(),
+    return ChangeNotifierProvider(
+      create: (context) => UserData(), // Provide UserData instance
+      child: MaterialApp(
+        home: AuthPage(),
+      ),
     );
   }
 }

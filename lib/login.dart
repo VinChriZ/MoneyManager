@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_moneymanager/data_user.dart';
 import 'package:flutter_moneymanager/main.dart';
 import 'package:http/http.dart' as http;
 import 'register.dart';
+import 'package:provider/provider.dart'; // Import Provider
 
 class Login extends StatefulWidget {
   @override
@@ -30,7 +32,8 @@ class _LoginState extends State<Login> {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      //buat ambil documentID
+
+      // Retrieve documentID
       String? documentId =
           await checkEmailInDatabase(emailController.text.trim());
 
@@ -38,12 +41,15 @@ class _LoginState extends State<Login> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login successful')),
       );
+
+      // Access UserData instance and update documentId
+      Provider.of<UserData>(context, listen: false).setDocumentID(documentId);
+
       await Future.delayed(Duration(seconds: 2));
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-            builder: (context) => Main(
-                  documentID: documentId,
-                )),
+          builder: (context) => Main(documentID: documentId),
+        ),
       );
     } catch (e) {
       Navigator.of(context).pop();
@@ -51,7 +57,7 @@ class _LoginState extends State<Login> {
     }
   }
 
-  //function untuk cek email ada atau tidak di database
+  // Function to check if email exists in database
   Future<String?> checkEmailInDatabase(String email) async {
     final url = Uri.https(
       'ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app',
