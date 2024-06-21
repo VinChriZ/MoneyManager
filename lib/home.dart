@@ -1,47 +1,79 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_moneymanager/fetch_data.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'login.dart';
-import 'user.dart';
 
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-void main() {
-  runApp(HomeScreen());
-}
-
-// ignore: must_be_immutable
 class HomeScreen extends StatefulWidget {
-  String? documentID;
-  HomeScreen({Key? key,  this.documentID}) : super(key: key);
+  final String? documentID;
+  HomeScreen({this.documentID});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<User> listUsers = [];
-  late UserObject userFound;
+  double totalIncome = 0.0;
+  double totalExpenses = 0.0;
+  bool isLoading = true;
 
-   @override
+  @override
   void initState() {
     super.initState();
-    fetchUser();
+    fetchFinancialData();
   }
 
-  Future<void> fetchUser() async {
-  String documentID = widget.documentID ?? '-O-a-zHsWMn6fnseIua8'; // Default jason@gmail.com
-  UserObject? fetchedUser = await fetchUserByUID(documentID);
-  setState(() {
-    userFound = fetchedUser!;
-  });
-}
+  Future<void> fetchFinancialData() async {
+    await fetchTotalIncome();
+    await fetchTotalExpenses();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<void> fetchTotalIncome() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    String uid = user.uid;
+    CollectionReference incomesRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('incomes');
+
+    QuerySnapshot snapshot = await incomesRef.get();
+    double income = snapshot.docs.fold(0.0,
+        (sum, doc) => sum + (doc.data() as Map<String, dynamic>)['amount']);
+
+    setState(() {
+      totalIncome = income;
+    });
+  }
+
+  Future<void> fetchTotalExpenses() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    String uid = user.uid;
+    CollectionReference expensesRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('expenses');
+
+    QuerySnapshot snapshot = await expensesRef.get();
+    double expense = snapshot.docs.fold(0.0,
+        (sum, doc) => sum + (doc.data() as Map<String, dynamic>)['amount']);
+
+    setState(() {
+      totalExpenses = expense;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    double accountBalance = totalIncome - totalExpenses;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -52,17 +84,9 @@ class _HomeScreenState extends State<HomeScreen> {
             const CircleAvatar(
               backgroundImage: NetworkImage('https://via.placeholder.com/150'),
             ),
-            DropdownButton<String>(
-              value: 'October',
-              icon: Icon(Icons.keyboard_arrow_down),
-              items: <String>['October', 'September', 'August']
-                  .map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (_) {},
+            Text(
+              'Home',
+              style: TextStyle(color: Colors.black),
             ),
             Icon(Icons.notifications, color: Colors.purple),
           ],
@@ -77,51 +101,51 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-
-            // Account Balance
-            children: [
-              Text('Account Balance', style: TextStyle(color: Colors.grey)),
-              Text('${userFound.name ?? "Loading..."} ',
-                  style: TextStyle(color: Color.fromARGB(255, 0, 255, 4))),
-              Text('\$${userFound.money ?? "No Money T-T"}',
-                  style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
-              SizedBox(height: 16.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: _buildSummaryCard('Income', '\$${userFound.income ?? 0}', Colors.green,
-                        FontAwesomeIcons.arrowDown),
-                  ),
-                  SizedBox(width: 16.0),
-                  Expanded(
-                    child: _buildSummaryCard('Expenses', '\$${userFound.expenses}', Colors.red,
-                        FontAwesomeIcons.arrowUp),
-                  ),
-                ],
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Account Balance',
+                        style: TextStyle(color: Colors.grey)),
+                    Text('\$$accountBalance',
+                        style: TextStyle(
+                            fontSize: 36, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 16.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: _buildSummaryCard('Income', '\$$totalIncome',
+                              Colors.green, FontAwesomeIcons.arrowDown),
+                        ),
+                        SizedBox(width: 16.0),
+                        Expanded(
+                          child: _buildSummaryCard(
+                              'Expenses',
+                              '\$$totalExpenses',
+                              Colors.red,
+                              FontAwesomeIcons.arrowUp),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16.0),
+                    Text('Spend Frequency',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 16.0),
+                    _buildSpendFrequencyGraph(),
+                    SizedBox(height: 16.0),
+                    _buildTimeFilter(),
+                    SizedBox(height: 16.0),
+                    _buildRecentTransactions(),
+                  ],
+                ),
               ),
-              SizedBox(height: 16.0),
-              const Text('Spend Frequency',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 16.0),
-              _buildSpendFrequencyGraph(),
-              SizedBox(height: 16.0),
-              _buildTimeFilter(),
-              SizedBox(height: 16.0),
-              _buildRecentTransactions(),
-
-              // Display the user's email
-              SizedBox(height: 16.0),
-              Text('Email : ${userFound.email}', style: TextStyle(fontSize: 18)),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 
@@ -131,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Confirm Logout'),
-          content: const Text('Are you sure you want to logout?'),
+          content: Text('Are you sure you want to logout?'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -174,6 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSpendFrequencyGraph() {
+    // Example data
     List<FlSpot> spots = [
       FlSpot(0, 5),
       FlSpot(1, 25),
@@ -198,25 +223,24 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: LineChart(
         LineChartData(
+          gridData: FlGridData(show: false),
+          borderData: FlBorderData(
+            show: true,
+            border: Border.all(color: Colors.black26),
+          ),
+          // titlesData: FlTitlesData(
+          //   leftTitles: SideTitles(showTitles: true),
+          //   bottomTitles: SideTitles(showTitles: true),
+          // ),
           lineBarsData: [
             LineChartBarData(
               spots: spots,
               isCurved: true,
-              color: Colors.purple,
+              color: Colors.blue,
               barWidth: 4,
               belowBarData: BarAreaData(show: false),
-              dotData: FlDotData(show: true),
             ),
           ],
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: true),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: true),
-            ),
-          ),
-          gridData: FlGridData(show: true),
         ),
       ),
     );
@@ -224,128 +248,54 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildTimeFilter() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildTimeFilterButton('Today'),
-        _buildTimeFilterButton('Week'),
-        _buildTimeFilterButton('Month'),
-        _buildTimeFilterButton('Year'),
+        _buildTimeFilterChip('Day'),
+        _buildTimeFilterChip('Week'),
+        _buildTimeFilterChip('Month'),
+        _buildTimeFilterChip('Year'),
       ],
     );
   }
 
-  Widget _buildTimeFilterButton(String text) {
-    return ElevatedButton(
-      onPressed: () {},
-      child: Text(text),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: text == 'Today' ? Colors.yellow : Colors.white,
-        foregroundColor: text == 'Today' ? Colors.black : Colors.grey,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-      ),
+  Widget _buildTimeFilterChip(String label) {
+    return ChoiceChip(
+      label: Text(label),
+      selected: false,
+      onSelected: (bool selected) {
+        // Handle chip selection
+      },
     );
   }
 
   Widget _buildRecentTransactions() {
-    final transactions = [
-      {
-        'category': 'Shopping',
-        'amount': '-\$120',
-        'time': '10:00 AM',
-        'icon': Icons.shopping_bag,
-        'color': Colors.orange
-      },
-      {
-        'category': 'Subscription',
-        'amount': '-\$80',
-        'time': '03:30 PM',
-        'icon': Icons.subscriptions,
-        'color': Colors.blue
-      },
-      {
-        'category': 'Salary',
-        'amount': '+\$2000',
-        'time': '09:00 AM',
-        'icon': Icons.attach_money,
-        'color': Colors.green
-      },
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: transactions.map((transaction) {
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundColor: transaction['color'] as Color?,
-            child: Icon(transaction['icon'] as IconData?),
-          ),
-          title: Text(transaction['category'] as String? ?? ''),
-          subtitle: Text(transaction['time'] as String? ?? ''),
-          trailing: Text(
-            transaction['amount'] as String? ?? '',
-            style: TextStyle(
-              color: transaction['amount'].toString().startsWith('+')
-                  ? Colors.green
-                  : Colors.red,
-            ),
-          ),
-        );
-      }).toList(),
+      children: [
+        Text('Recent Transactions',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        SizedBox(height: 16.0),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: 3, // Example item count
+          itemBuilder: (context, index) {
+            return ListTile(
+              leading: CircleAvatar(
+                backgroundImage:
+                    NetworkImage('https://via.placeholder.com/150'),
+              ),
+              title: Text('Transaction $index'),
+              subtitle: Text('Transaction details here...'),
+              trailing: Text(
+                '-\$50',
+                style:
+                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              ),
+            );
+          },
+        ),
+      ],
     );
-  }
-
-  // Fetch User data
-  void fetchUsers() async {
-    print("FETCH USERS");
-    const url =
-        "https://ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app/users.json";
-    final uri = Uri.parse(url);
-    final response = await http.get(uri);
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      final List<UserObject> loadedUsers = [];
-
-      data.forEach((key, value) {
-        if (value != null) {
-          final userFound = UserObject.fromJson(value);
-          loadedUsers.add(userFound);
-          print("Key : $key + Value : $value");
-        } else {
-          print("Value Empty");
-        }
-      });
-
-      print("fetchUsers completed");
-    } else {
-      print("Failed to load data from Firebase");
-    }
-  }
-
-  Future<UserObject?> fetchUserByUID(String uid) async {
-    print("FETCH USERS BY UID");
-    final url =
-        "https://ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app/users/$uid.json";
-    final uri = Uri.parse(url);
-    final response = await http.get(uri);
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-
-      if (data != null) {
-        final userFound = UserObject.fromJson(data);
-        print("User Found: ${userFound.name}, ${userFound.email}, ${userFound.uid}");
-        return userFound;
-      } 
-      else {
-        print("No user data found for UID: $uid");
-        return null;
-      }
-    } 
-    else {
-      print("Failed to load data from Firebase");
-      return null;
-    }
   }
 }
