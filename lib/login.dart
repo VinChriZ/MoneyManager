@@ -31,8 +31,7 @@ class _LoginState extends State<Login> {
         password: passwordController.text.trim(),
       );
       //buat ambil documentID
-      String? documentId =
-          await checkEmailInDatabase(emailController.text.trim());
+      String? documentId = await checkEmailInDatabase(emailController.text.trim());
 
       Navigator.of(context).pop(); // Close the loading indicator dialog
       ScaffoldMessenger.of(context).showSnackBar(
@@ -40,10 +39,7 @@ class _LoginState extends State<Login> {
       );
       await Future.delayed(Duration(seconds: 2));
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-            builder: (context) => Main(
-                  documentID: documentId,
-                )),
+        MaterialPageRoute(builder: (context) => Main(documentID: documentId,)),
       );
     } catch (e) {
       Navigator.of(context).pop();
@@ -53,20 +49,20 @@ class _LoginState extends State<Login> {
 
   //function untuk cek email ada atau tidak di database
   Future<String?> checkEmailInDatabase(String email) async {
-    final url = Uri.https(
-      'ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app',
-      'users.json',
-    );
-    final response = await http.get(url);
-    final responseData = jsonDecode(response.body);
+  final url = Uri.https(
+    'ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app',
+    'users.json',
+  );
+  final response = await http.get(url);
+  final responseData = jsonDecode(response.body);
 
-    for (var key in responseData.keys) {
-      if (responseData[key]['email'] == email) {
-        return key; // Return the document ID if email is found
-      }
+  for (var key in responseData.keys) {
+    if (responseData[key]['email'] == email) {
+      return key; // Return the document ID if email is found
     }
-    return null; // Return null if email is not found
   }
+  return null; // Return null if email is not found
+}
 
   void _showLoadingDialog(BuildContext context) {
     showDialog(
@@ -103,6 +99,9 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Login'),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

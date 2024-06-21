@@ -1,29 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: IncomePage(),
-    );
-  }
-}
 
 class IncomePage extends StatefulWidget {
-  final String? documentId;
-
-  IncomePage({Key? key, this.documentId}) : super(key: key);
+  final documentId;
+  IncomePage({Key? key, this.documentId}):super(key: key);
 
   @override
   _IncomePageState createState() => _IncomePageState();
@@ -36,8 +17,10 @@ class IncomeData {
   IncomeData(this.day, this.amount);
 }
 
+
 class _IncomePageState extends State<IncomePage> {
   int _currentMonth = DateTime.now().month;
+
   final List<String> monthNames = [
     'January',
     'February',
@@ -53,71 +36,36 @@ class _IncomePageState extends State<IncomePage> {
     'December'
   ];
 
-  List<Map<String, dynamic>> incomes = [];
-  double totalIncome = 0.0;
+  List<Map<String, dynamic>> incomes = [
+    {
+      'category': 'Salary',
+      'amount': '+\$3000',
+      'time': '1-5-2024',
+      'icon': Icons.money,
+      'color': Colors.blue
+    },
+    {
+      'category': 'Freelance',
+      'amount': '+\$1500',
+      'time': '15-5-2024',
+      'icon': Icons.laptop_mac,
+      'color': Colors.green
+    },
+    {
+      'category': 'Investments',
+      'amount': '+\$500',
+      'time': '20-5-2024',
+      'icon': Icons.show_chart,
+      'color': Colors.orange
+    },
+  ];
+
+  double totalIncome = 5000;
+
   List<FlSpot> data = List.generate(31, (index) => FlSpot(index.toDouble(), 0));
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchIncomes();
-  }
-
-  void _fetchIncomes() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      // Handle the case where the user is not authenticated
-      return;
-    }
-
-    String uid = user.uid;
-    CollectionReference incomesRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('incomes');
-
-    QuerySnapshot snapshot = await incomesRef.get();
-    List<Map<String, dynamic>> fetchedIncomes = snapshot.docs.map((doc) {
-      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      return {
-        'category': data['category'],
-        'amount': '+\$${data['amount']}',
-        'time': data['time'],
-        'icon': IconData(data['icon'], fontFamily: 'MaterialIcons'),
-        'color': Color(data['color']),
-      };
-    }).toList();
-
-    setState(() {
-      incomes = fetchedIncomes;
-      totalIncome = fetchedIncomes.fold(
-          0.0, (sum, item) => sum + double.parse(item['amount'].substring(2)));
-      _updateChartData();
-    });
-  }
-
-  void _addIncome(String category, double amount, String time, IconData icon,
-      Color color) async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      // Handle the case where the user is not authenticated
-      return;
-    }
-
-    String uid = user.uid;
-    CollectionReference incomesRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('incomes');
-
-    await incomesRef.add({
-      'category': category,
-      'amount': amount,
-      'time': time,
-      'icon': icon.codePoint,
-      'color': color.value,
-    });
-
+  void _addIncome(
+      String category, double amount, String time, IconData icon, Color color) {
     setState(() {
       incomes.add({
         'category': category,
@@ -141,7 +89,7 @@ class _IncomePageState extends State<IncomePage> {
 
       if (day != null && day >= 1 && day <= 31) {
         newData[day - 1] = FlSpot(day.toDouble(),
-            newData[day - 1].y + double.parse(income['amount'].substring(2)));
+            newData[day - 1].y + int.parse(income['amount'].substring(2)));
       }
     }
 
@@ -162,7 +110,7 @@ class _IncomePageState extends State<IncomePage> {
 
       if (day != null && day >= 1 && day <= 31 && incomeMonth == month) {
         newData[day - 1] = FlSpot(day.toDouble(),
-            newData[day - 1].y + double.parse(income['amount'].substring(2)));
+            newData[day - 1].y + int.parse(income['amount'].substring(2)));
       }
     }
 
@@ -306,8 +254,9 @@ class _IncomePageState extends State<IncomePage> {
                     context: context,
                     builder: (context) {
                       return AlertDialog(
-                        title: Text('Invalid Input'),
-                        content: Text('Please fill in all the fields.'),
+                        title: Text('Error'),
+                        content:
+                            Text('Please fill in all fields with valid data'),
                         actions: [
                           TextButton(
                             onPressed: () {
@@ -333,84 +282,211 @@ class _IncomePageState extends State<IncomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Income'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text('Income', style: TextStyle(color: Colors.black)),
+        iconTheme: IconThemeData(color: Colors.black),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.arrow_back),
-                  onPressed: _showPreviousMonth,
-                ),
-                Text(
-                  '${monthNames[_currentMonth - 1]}',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  icon: Icon(Icons.arrow_forward),
-                  onPressed: _showNextMonth,
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Total Income: \$${totalIncome.toStringAsFixed(2)}',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: LineChart(
-                LineChartData(
-                  borderData: FlBorderData(show: false),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: data,
-                      isCurved: true,
-                      color: Color.fromARGB(255, 0, 132, 255),
-                      barWidth: 2,
-                      belowBarData: BarAreaData(show: false),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Total Income', style: TextStyle(color: Colors.grey)),
+              Text('\$$totalIncome',
+                  style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
+              SizedBox(height: 16.0),
+              _buildIncomeSummary(),
+              SizedBox(height: 16.0),
+              Text('Income Frequency',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              SizedBox(height: 16.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    // Wrap the "Previous" button with Flexible
+                    child: ElevatedButton(
+                      onPressed: _showPreviousMonth,
+                      child: Text('Back'),
                     ),
-                  ],
-                  titlesData: FlTitlesData(show: false),
-                  gridData: FlGridData(show: false),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: incomes.length,
-              itemBuilder: (context, index) {
-                var income = incomes[index];
-                return ListTile(
-                  leading: FaIcon(
-                    income['icon'],
-                    color: income['color'],
                   ),
-                  title: Text(income['category']),
-                  subtitle: Text(income['time']),
-                  trailing: Text(income['amount']),
-                );
-              },
-            ),
+                  SizedBox(width: 16.0),
+                  Text(
+                    monthNames[_currentMonth -
+                        1], // Display the name of the current month
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(width: 16.0),
+                  ElevatedButton(
+                    onPressed: _showNextMonth,
+                    child: Text('Next'),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16.0),
+              _buildIncomeFrequencyGraph(),
+              SizedBox(height: 16.0),
+              _buildRecentIncomes(),
+              SizedBox(height: 16.0),
+            ],
           ),
-        ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddIncomeDialog,
         child: Icon(Icons.add),
+        backgroundColor: Colors.green,
       ),
+    );
+  }
+
+  Widget _buildIncomeSummary() {
+    Map<String, double> categoryAmounts = {};
+    incomes.forEach((income) {
+      String category = income['category'] as String;
+      double amount = double.parse(income['amount']!.substring(2));
+      if (categoryAmounts.containsKey(category)) {
+        categoryAmounts[category] = categoryAmounts[category]! + amount;
+      } else {
+        categoryAmounts[category] = amount;
+      }
+    });
+
+    var sortedCategories = categoryAmounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return SizedBox(
+      height: 120,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: sortedCategories.length,
+        itemBuilder: (context, index) {
+          final category = sortedCategories[index].key;
+          final amount = sortedCategories[index].value;
+          return SizedBox(
+            width: 150,
+            child: _buildSummaryCard(
+              category,
+              '+\$${amount.toStringAsFixed(0)}',
+              _getCategoryColor(category),
+              _getCategoryIcon(category),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Color _getCategoryColor(String category) {
+    Map<String, Color> categoryColors = {
+      'Salary': Colors.blue,
+      'Freelance': Colors.green,
+      'Investments': Colors.orange,
+      'Gifts': Colors.purple,
+      'Rent': Colors.brown,
+      'Other': Colors.grey,
+    };
+    // Return color based on category
+    return categoryColors[category] ?? Colors.grey;
+  }
+
+  IconData _getCategoryIcon(String category) {
+    Map<String, IconData> categoryIcons = {
+      'Salary': Icons.money,
+      'Freelance': Icons.laptop_mac,
+      'Investments': Icons.show_chart,
+      'Gifts': Icons.card_giftcard,
+      'Rent': Icons.home,
+      'Other': Icons.category,
+    };
+    return categoryIcons[category] ?? Icons.category;
+  }
+
+  Widget _buildSummaryCard(
+      String title, String amount, Color color, IconData icon) {
+    return Card(
+      color: color.withOpacity(0.4),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            FaIcon(icon, color: color),
+            SizedBox(height: 8.0),
+            Text(amount,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(title, style: TextStyle(color: Colors.black)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIncomeFrequencyGraph() {
+    return Container(
+      height: 200.0,
+      padding: EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: LineChart(
+        LineChartData(
+          lineBarsData: [
+            LineChartBarData(
+              spots: data,
+              isCurved: true,
+              color: Colors.blue,
+              barWidth: 4,
+              belowBarData: BarAreaData(show: false),
+              dotData: FlDotData(show: true),
+            ),
+          ],
+          titlesData: FlTitlesData(
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: true),
+            ),
+          ),
+          gridData: FlGridData(show: true),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecentIncomes() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Recent Incomes',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            TextButton(onPressed: () {}, child: Text('See All')),
+          ],
+        ),
+        ...incomes.map((income) {
+          return ListTile(
+            leading: CircleAvatar(
+              backgroundColor: income['color'] as Color,
+              child: Icon(income['icon'] as IconData, color: Colors.white),
+            ),
+            title: Text(income['category'] as String),
+            subtitle: Text(income['time'] as String),
+            trailing: Text(income['amount'] as String,
+                style: TextStyle(color: Colors.green)),
+          );
+        }).toList(),
+      ],
     );
   }
 }

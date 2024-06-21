@@ -1,30 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: ExpensePage(),
-    );
-  }
-}
 
 class ExpensePage extends StatefulWidget {
-  final String? documentId;
-
-  ExpensePage({Key? key, this.documentId}) : super(key: key);
-
   @override
   _ExpensePageState createState() => _ExpensePageState();
 }
@@ -38,88 +16,41 @@ class ExpenseData {
 
 class _ExpensePageState extends State<ExpensePage> {
   int _currentMonth = DateTime.now().month;
-  final List<String> monthNames = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
+
+  List<Map<String, dynamic>> expenses = [
+    {
+      'category': 'Rent',
+      'amount': '-\$1200',
+      'time': '1-5-2024',
+      'icon': Icons.home,
+      'color': Colors.red
+    },
+    {
+      'category': 'Groceries',
+      'amount': '-\$300',
+      'time': '10-5-2024',
+      'icon': Icons.shopping_cart,
+      'color': Colors.orange
+    },
+    {
+      'category': 'Utilities',
+      'amount': '-\$150',
+      'time': '20-5-2024',
+      'icon': Icons.lightbulb_outline,
+      'color': Colors.yellow
+    },
   ];
 
-  List<Map<String, dynamic>> expenses = [];
-  double totalExpense = 0.0;
+  double totalExpense = 1650;
+
   List<FlSpot> data = List.generate(31, (index) => FlSpot(index.toDouble(), 0));
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchExpenses();
-  }
-
-  void _fetchExpenses() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      return;
-    }
-
-    String uid = user.uid;
-    CollectionReference expensesRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('expenses');
-
-    QuerySnapshot snapshot = await expensesRef.get();
-    List<Map<String, dynamic>> fetchedExpenses = snapshot.docs.map((doc) {
-      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      return {
-        'category': data['category'],
-        'amount': data['amount'],
-        'time': data['time'],
-        'icon': IconData(data['icon'], fontFamily: 'MaterialIcons'),
-        'color': Color(data['color']),
-      };
-    }).toList();
-
-    setState(() {
-      expenses = fetchedExpenses;
-      totalExpense =
-          fetchedExpenses.fold(0.0, (sum, item) => sum + item['amount']);
-      _updateChartData();
-    });
-  }
-
-  void _addExpense(String category, double amount, String time, IconData icon,
-      Color color) async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      return;
-    }
-
-    String uid = user.uid;
-    CollectionReference expensesRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('expenses');
-
-    await expensesRef.add({
-      'category': category,
-      'amount': amount,
-      'time': time,
-      'icon': icon.codePoint,
-      'color': color.value,
-    });
-
+  void _addExpense(
+      String category, double amount, String time, IconData icon, Color color) {
     setState(() {
       expenses.add({
         'category': category,
-        'amount': amount,
+        'amount': '-\$$amount',
         'time': time,
         'icon': icon,
         'color': color,
@@ -134,12 +65,10 @@ class _ExpensePageState extends State<ExpensePage> {
         List.generate(31, (index) => FlSpot(index.toDouble(), 0));
 
     for (var expense in expenses) {
-      var day = int.tryParse(
-          expense['time'].split('-')[0].replaceAll(RegExp(r'\D'), ''));
-
+      var day = int.tryParse(expense['time'].split('-')[0]);
       if (day != null && day >= 1 && day <= 31) {
-        newData[day - 1] =
-            FlSpot(day.toDouble(), newData[day - 1].y + expense['amount']);
+        newData[day - 1] = FlSpot(day.toDouble(),
+            newData[day - 1].y + double.parse(expense['amount'].substring(2)));
       }
     }
 
@@ -153,14 +82,12 @@ class _ExpensePageState extends State<ExpensePage> {
         List.generate(31, (index) => FlSpot(index.toDouble(), 0));
 
     for (var expense in expenses) {
-      var day = int.tryParse(
-          expense['time'].split('-')[0].replaceAll(RegExp(r'\D'), ''));
-      var expenseMonth = int.tryParse(
-          expense['time'].split('-')[1].replaceAll(RegExp(r'\D'), ''));
+      var day = int.tryParse(expense['time'].split('-')[0]);
+      var expenseMonth = int.tryParse(expense['time'].split('-')[1]);
 
       if (day != null && day >= 1 && day <= 31 && expenseMonth == month) {
-        newData[day - 1] =
-            FlSpot(day.toDouble(), newData[day - 1].y + expense['amount']);
+        newData[day - 1] = FlSpot(day.toDouble(),
+            newData[day - 1].y + double.parse(expense['amount'].substring(2)));
       }
     }
 
@@ -192,20 +119,20 @@ class _ExpensePageState extends State<ExpensePage> {
   }
 
   void _showAddExpenseDialog() {
-    String category = 'Food';
+    String category = 'Rent';
     double amount = 0.0;
     String time =
-        "${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}";
+        "${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}"; // Set default date to today
     String customCategory = '';
-    IconData icon = Icons.fastfood;
+    IconData icon = Icons.home;
     Color color = Colors.red;
 
     final Map<String, Map<String, dynamic>> categories = {
-      'Food': {'icon': Icons.fastfood, 'color': Colors.red},
-      'Transport': {'icon': Icons.directions_car, 'color': Colors.blue},
-      'Shopping': {'icon': Icons.shopping_cart, 'color': Colors.green},
+      'Rent': {'icon': Icons.home, 'color': Colors.red},
+      'Groceries': {'icon': Icons.shopping_cart, 'color': Colors.orange},
+      'Utilities': {'icon': Icons.lightbulb_outline, 'color': Colors.yellow},
+      'Transport': {'icon': Icons.directions_car, 'color': Colors.green},
       'Entertainment': {'icon': Icons.movie, 'color': Colors.purple},
-      'Bills': {'icon': Icons.receipt, 'color': Colors.orange},
       'Other': {'icon': Icons.category, 'color': Colors.grey},
     };
 
@@ -304,8 +231,9 @@ class _ExpensePageState extends State<ExpensePage> {
                     context: context,
                     builder: (context) {
                       return AlertDialog(
-                        title: Text('Invalid Input'),
-                        content: Text('Please fill in all the fields.'),
+                        title: Text('Error'),
+                        content:
+                            Text('Please fill in all fields with valid data'),
                         actions: [
                           TextButton(
                             onPressed: () {
@@ -331,79 +259,120 @@ class _ExpensePageState extends State<ExpensePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Expenses'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text('Expenses', style: TextStyle(color: Colors.black)),
+        iconTheme: IconThemeData(color: Colors.black),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.arrow_back),
-                  onPressed: _showPreviousMonth,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Card(
+                elevation: 4.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
-                Text(
-                  '${monthNames[_currentMonth - 1]}',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  icon: Icon(Icons.arrow_forward),
-                  onPressed: _showNextMonth,
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Total Expense: \$${totalExpense.toStringAsFixed(2)}',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: LineChart(
-                LineChartData(
-                  borderData: FlBorderData(show: false),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: data,
-                      isCurved: true,
-                      color: Color.fromARGB(255, 255, 0, 0),
-                      barWidth: 2,
-                      belowBarData: BarAreaData(show: false),
+                color: Colors.red,
+                child: ListTile(
+                  title: Text('Total Expense',
+                      style: TextStyle(color: Colors.white)),
+                  subtitle: Text(
+                    '-\$${totalExpense.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24.0,
+                      color: Colors.white,
                     ),
-                  ],
-                  titlesData: FlTitlesData(show: false),
-                  gridData: FlGridData(show: false),
+                  ),
+                  leading: Icon(
+                    FontAwesomeIcons.moneyBillWave,
+                    color: Colors.white,
+                    size: 40.0,
+                  ),
                 ),
               ),
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: expenses.length,
-              itemBuilder: (context, index) {
-                var expense = expenses[index];
-                return ListTile(
-                  leading: FaIcon(
-                    expense['icon'],
-                    color: expense['color'],
+              SizedBox(height: 16.0),
+              SizedBox(
+                height: 200.0,
+                child: LineChart(
+                  LineChartData(
+                    lineBarsData: [
+                      LineChartBarData(
+                        spots: data,
+                        isCurved: true,
+                        barWidth: 2,
+                        color: Colors.red,
+                        dotData: FlDotData(show: true),
+                      ),
+                    ],
+                    titlesData: FlTitlesData(
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: true),
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: true),
+                      ),
+                    ),
+                    gridData: FlGridData(show: true),
                   ),
-                  title: Text(expense['category']),
-                  subtitle: Text(expense['time']),
-                  trailing: Text('\$${expense['amount']}'),
-                );
-              },
-            ),
+                ),
+              ),
+              SizedBox(height: 16.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.arrow_back),
+                    onPressed: _showPreviousMonth,
+                  ),
+                  Text(
+                    _currentMonth.toString(),
+                    style:
+                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.arrow_forward),
+                    onPressed: _showNextMonth,
+                  ),
+                ],
+              ),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: expenses.length,
+                itemBuilder: (context, index) {
+                  final expense = expenses[index];
+                  return Card(
+                    elevation: 2.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: expense['color'],
+                        child: Icon(
+                          expense['icon'],
+                          color: Colors.white,
+                        ),
+                      ),
+                      title: Text(expense['category']),
+                      subtitle: Text(expense['time']),
+                      trailing: Text(
+                        expense['amount'],
+                        style: TextStyle(
+                          color: expense['color'],
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddExpenseDialog,
