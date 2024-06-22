@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter_moneymanager/Profile/change_password.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
@@ -102,7 +103,12 @@ class _ProfilePageState extends State<ProfilePage> {
                       ListTile(
                         leading: Icon(Icons.lock),
                         title: Text('Change Password'),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ChangePassword()),
+                          );
+                        },
                       ),
                       ListTile(
                         leading: Icon(Icons.exit_to_app),
