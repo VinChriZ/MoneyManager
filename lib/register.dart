@@ -40,9 +40,6 @@ class _RegisterState extends State<Register> {
           'uid': uid,
           'name': nameController.text,
           'email': emailController.text,
-          'money': baseMoneyController.text,
-          'income': 0.0,
-          'expenses': 0.0,
         }),
       );
 
@@ -124,6 +121,19 @@ class _RegisterState extends State<Register> {
               ),
             ),
             const SizedBox(height: 40.0),
+
+                        // Name TextField
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(
+                labelText: 'Name',
+                prefixIcon: Icon(Icons.person),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16.0),
             
             // Email TextField
             TextField(
@@ -153,32 +163,6 @@ class _RegisterState extends State<Register> {
             ),
             const SizedBox(height: 16.0),
             
-            // Name TextField
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(
-                labelText: 'Name',
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            
-            // Base Money TextField
-            TextField(
-              controller: baseMoneyController,
-              decoration: InputDecoration(
-                labelText: 'Base Money',
-                prefixIcon: Icon(Icons.attach_money),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-              ),
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-            ),
-            const SizedBox(height: 30.0),
             
             // Register Button
             MaterialButton(

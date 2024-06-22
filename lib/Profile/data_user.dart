@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 // Global Variable
 class UserData extends ChangeNotifier {
-  static String documentId = '';
+  String documentId = '';
 
   void setDocumentID(String? id) {
     if(id == null){

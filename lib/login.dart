@@ -2,9 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_moneymanager/Profile/data_user.dart';
 import 'package:flutter_moneymanager/home.dart';
 import 'package:flutter_moneymanager/main.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'register.dart';
 
 class Login extends StatefulWidget {
@@ -33,6 +35,9 @@ class _LoginState extends State<Login> {
       );
       //buat ambil documentID
       String? documentId = await checkEmailInDatabase(emailController.text.trim());
+
+      // Access UserData instance and update documentId
+      Provider.of<UserData>(context, listen: false).setDocumentID(documentId);
 
       Navigator.of(context).pop(); // Close the loading indicator dialog
       ScaffoldMessenger.of(context).showSnackBar(

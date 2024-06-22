@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_moneymanager/auth_page.dart';
 import 'package:flutter_moneymanager/home.dart';
 import 'package:flutter_moneymanager/login.dart';
-import 'package:flutter_moneymanager/profile.dart';
+import 'package:flutter_moneymanager/Profile/profile.dart';
 import 'package:flutter_moneymanager/income.dart';
 import 'package:flutter_moneymanager/expense.dart';
 import 'package:flutter_moneymanager/splash_screen.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-import 'data_user.dart';
+import 'Profile/data_user.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -24,8 +24,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => UserData(), // Provide UserData instance
       child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: SplashScreen(),
+        home: AuthPage(),
       ),
     );
   }
