@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'main.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -129,6 +130,10 @@ class _IncomePageState extends State<IncomePage> {
       totalIncome += amount;
       _updateChartData();
     });
+    Navigator.of(context).pop();
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => Main()),
+      );
   }
 
   void _updateChartData() {
