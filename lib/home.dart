@@ -108,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
       fetchedTransactions.add({
         'type': 'income',
         'amount': data['amount'],
-        'time': data['time'],
+        'time': data['time'], // Date in string format "21-6-2024"
         'category': data['category'],
         'icon': FontAwesomeIcons.arrowDown,
         'color': Colors.green,
@@ -120,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
       fetchedTransactions.add({
         'type': 'expense',
         'amount': data['amount'],
-        'time': data['time'],
+        'time': data['time'], // Date in string format "21-6-2024"
         'category': data['category'],
         'icon': FontAwesomeIcons.arrowUp,
         'color': Colors.red,
@@ -305,46 +305,117 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSpendFrequencyChart() {
+    Map<int, double> incomeTransactions = {};
+    Map<int, double> expenseTransactions = {};
+
+    // Initialize the maps with zero values for each day of the month
+    for (int day = 1; day <= 30; day++) {
+      incomeTransactions[day] = 0;
+      expenseTransactions[day] = 0;
+    }
+
+    for (var transaction in transactions) {
+      String date = transaction['time'];
+      int day = int.parse(date.split('-')[0]);
+      if (transaction['type'] == 'income') {
+        incomeTransactions[day] =
+            (incomeTransactions[day] ?? 0) + transaction['amount'];
+      } else if (transaction['type'] == 'expense') {
+        expenseTransactions[day] =
+            (expenseTransactions[day] ?? 0) + transaction['amount'];
+      }
+    }
+
+    List<FlSpot> incomeSpots = incomeTransactions.entries
+        .map((entry) => FlSpot(entry.key.toDouble(), entry.value))
+        .toList();
+
+    List<FlSpot> expenseSpots = expenseTransactions.entries
+        .map((entry) => FlSpot(entry.key.toDouble(), entry.value))
+        .toList();
+
     return Container(
-      height: 200,
+      height: 300, // Increased height for better y-axis visibility
       padding: const EdgeInsets.only(bottom: 18.0),
       child: LineChart(
         LineChartData(
-          minX: 0,
-          maxX: 6,
+          minX: 1,
+          maxX: 30,
           minY: 0,
-          maxY: 10,
           titlesData: FlTitlesData(
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 100, // Adjust interval for y-axis titles
+                getTitlesWidget: (value, meta) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Text(value.toString(),
+                        style: TextStyle(color: Colors.black, fontSize: 10)),
+                  );
+                },
               ),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(value.toInt().toString(),
+                        style: TextStyle(color: Colors.black, fontSize: 10)),
+                  );
+                },
               ),
-              topTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              rightTitles:
-                  AxisTitles(sideTitles: SideTitles(showTitles: false))),
-          gridData: FlGridData(show: false),
-          borderData: FlBorderData(show: false),
+            ),
+            topTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+          ),
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: true,
+            horizontalInterval:
+                100, // Adjust interval for horizontal grid lines
+            getDrawingHorizontalLine: (value) {
+              return FlLine(
+                color: Colors.grey.withOpacity(0.3),
+                strokeWidth: 1,
+              );
+            },
+            getDrawingVerticalLine: (value) {
+              return FlLine(
+                color: Colors.grey.withOpacity(0.3),
+                strokeWidth: 1,
+              );
+            },
+          ),
+          borderData: FlBorderData(
+            show: true,
+            border: Border.all(color: Colors.grey.withOpacity(0.5), width: 1),
+          ),
           lineBarsData: [
             LineChartBarData(
-              spots: [
-                FlSpot(0, 1),
-                FlSpot(1, 3),
-                FlSpot(2, 2),
-                FlSpot(3, 8),
-                FlSpot(4, 4),
-                FlSpot(5, 6),
-                FlSpot(6, 7),
-              ],
+              spots: incomeSpots,
               isCurved: true,
-              color: Colors.purple.shade400,
+              color: Colors.green,
               barWidth: 4,
               belowBarData: BarAreaData(
                 show: true,
-                color: Colors.purple.withOpacity(0.3),
+                color: Colors.green.withOpacity(0.3),
+              ),
+            ),
+            LineChartBarData(
+              spots: expenseSpots,
+              isCurved: true,
+              color: Colors.red,
+              barWidth: 4,
+              belowBarData: BarAreaData(
+                show: true,
+                color: Colors.red.withOpacity(0.3),
               ),
             ),
           ],
