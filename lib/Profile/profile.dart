@@ -5,8 +5,8 @@ import 'package:flutter_moneymanager/Profile/data_user.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import '../login.dart';
-import 'data_user.dart';
-import 'user.dart'; // Assuming this contains your User class definition
+import 'user.dart';
+import 'edit_profile.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -87,26 +87,16 @@ class _ProfilePageState extends State<ProfilePage> {
                   ListTile(
                     leading: Icon(Icons.person),
                     title: Text('Edit Profile'),
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => EditProfile()),
+                      );
+                    },
                   ),
                   ListTile(
                     leading: Icon(Icons.lock),
                     title: Text('Change Password'),
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.notifications),
-                    title: Text('Notification Settings'),
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.language),
-                    title: Text('Language'),
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.color_lens),
-                    title: Text('Theme'),
                     onTap: () {},
                   ),
                   ListTile(
