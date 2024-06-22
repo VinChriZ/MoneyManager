@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'login.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,7 +21,6 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isLoading = true;
   String selectedTimeFilter = 'Day';
 
-  // Define your categories map here
   final Map<String, Map<String, dynamic>> categories = {
     'Salary': {'icon': Icons.money, 'color': Colors.blue},
     'Freelance': {'icon': Icons.laptop_mac, 'color': Colors.green},
@@ -29,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
     'Rent': {'icon': Icons.home, 'color': Colors.brown},
     'Other': {'icon': Icons.category, 'color': Colors.grey},
   };
+
   @override
   void initState() {
     super.initState();
@@ -108,6 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
         'type': 'income',
         'amount': data['amount'],
         'time': data['time'],
+        'category': data['category'],
         'icon': FontAwesomeIcons.arrowDown,
         'color': Colors.green,
       });
@@ -119,12 +121,12 @@ class _HomeScreenState extends State<HomeScreen> {
         'type': 'expense',
         'amount': data['amount'],
         'time': data['time'],
+        'category': data['category'],
         'icon': FontAwesomeIcons.arrowUp,
         'color': Colors.red,
       });
     });
 
-    // Sort transactions by time
     fetchedTransactions.sort((a, b) => a['time'].compareTo(b['time']));
 
     setState(() {
@@ -148,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Text(
               'Home',
-              style: TextStyle(color: Colors.black),
+              style: GoogleFonts.inter(color: Colors.black,fontWeight: FontWeight.bold),
             ),
             Icon(Icons.notifications, color: Colors.purple),
           ],
@@ -169,20 +171,31 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Account Balance',
-                        style: TextStyle(color: Colors.grey)),
-                    Text('\$$accountBalance',
-                        style: TextStyle(
-                            fontSize: 36, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 16.0),
+                    Container(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text('Account Balance',
+                              style: GoogleFonts.inter(color: Colors.grey)),
+                          Text('\$$accountBalance',
+                              style: GoogleFonts.inter(
+                                  fontSize: 36, fontWeight: FontWeight.bold)),
+                          SizedBox(height: 16.0),
+                        ],
+                      ),
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
-                          child: _buildSummaryCard('Income', '\$$totalIncome',
-                              Colors.green, FontAwesomeIcons.arrowDown),
+                          child: _buildSummaryCard(
+                              'Income',
+                              '\$$totalIncome',
+                              Colors.green,
+                              Colors.white,
+                              FontAwesomeIcons.arrowDown),
                         ),
                         SizedBox(width: 16.0),
                         Expanded(
@@ -190,15 +203,23 @@ class _HomeScreenState extends State<HomeScreen> {
                               'Expenses',
                               '\$$totalExpenses',
                               Colors.red,
+                              Colors.white,
                               FontAwesomeIcons.arrowUp),
                         ),
                       ],
                     ),
                     SizedBox(height: 16.0),
-                    Text('Spend Frequency',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 16.0),
+                    Container(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Spend Frequency',
+                              style: GoogleFonts.inter(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                          _buildSpendFrequencyChart(), // Add chart here
+                        ],
+                      ),
+                    ),
                     _buildTimeFilter(),
                     SizedBox(height: 16.0),
                     _buildRecentTransactions(),
@@ -238,19 +259,19 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSummaryCard(
-      String title, String amount, Color color, IconData icon) {
+  Widget _buildSummaryCard(String title, String amount, Color color,
+      Color arrowcolor, IconData icon) {
     return Card(
-      color: color.withOpacity(0.4),
+      color: color.withOpacity(1),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            FaIcon(icon, color: color),
+            FaIcon(icon, color: arrowcolor),
             SizedBox(height: 8.0),
             Text(amount,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            Text(title, style: TextStyle(color: Colors.black)),
+                style: GoogleFonts.inter(fontSize: 18,fontWeight: FontWeight.bold)),
+            Text(title, style: GoogleFonts.inter(color: Colors.black)),
           ],
         ),
       ),
@@ -281,47 +302,73 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildSpendFrequencyChart() {
+    return Container(
+      height: 200,
+      padding: const EdgeInsets.only(bottom: 18.0),
+      child: LineChart(
+        LineChartData(
+          minX: 0,
+          maxX: 6,
+          minY: 0,
+          maxY: 10,
+          titlesData: FlTitlesData(
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              topTitles: AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              rightTitles:
+                  AxisTitles(sideTitles: SideTitles(showTitles: false))),
+          gridData: FlGridData(show: false),
+          borderData: FlBorderData(show: false),
+          lineBarsData: [
+            LineChartBarData(
+              spots: [
+                FlSpot(0, 1),
+                FlSpot(1, 3),
+                FlSpot(2, 2),
+                FlSpot(3, 8),
+                FlSpot(4, 4),
+                FlSpot(5, 6),
+                FlSpot(6, 7),
+              ],
+              isCurved: true,
+              color: Colors.purple.shade400,
+              barWidth: 4,
+              belowBarData: BarAreaData(
+                show: true,
+                color: Colors.purple.withOpacity(0.3),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildRecentTransactions() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Recent Transactions',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
         SizedBox(height: 16.0),
         ListView.builder(
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
           itemCount: transactions.length,
           itemBuilder: (context, index) {
-            var transaction = transactions[index];
-            IconData transactionIcon;
-            Color transactionColor;
-            String transactionCategory;
-            if (transaction['type'] == 'income') {
-              transactionCategory = 'Income';
-            } else {
-              transactionCategory = 'Expense';
-            }
-
-            if (categories.containsKey(transaction['category'])) {
-              transactionIcon = categories[transaction['category']]?['icon'];
-              transactionColor = categories[transaction['category']]?['color'];
-            } else {
-              // Use a default icon when the category is not found
-              transactionIcon = Icons.category; // or any other default icon
-              transactionColor = Colors.grey; // or any other default color
-            }
-
+            final transaction = transactions[index];
             return ListTile(
-              leading: FaIcon(
-                transactionIcon,
-                color: transactionColor,
-              ),
-              title: Text(transactionCategory),
-              subtitle: Text(transaction['time']),
-              trailing: Text('\$${transaction['amount']}',
-                  style: TextStyle(
-                      color: transactionColor, fontWeight: FontWeight.bold)),
+              leading: FaIcon(transaction['icon'], color: transaction['color']),
+              title: Text('\$${transaction['amount']}'),
+              subtitle: Text(transaction['category']),
+              trailing: Text(transaction['time'].toString()),
             );
           },
         ),

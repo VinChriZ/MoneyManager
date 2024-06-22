@@ -24,7 +24,9 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => UserData(), // Provide UserData instance
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         home: SplashScreen(),
+        // home: HomeScreen(),
       ),
     );
   }
@@ -76,15 +78,16 @@ class _MainState extends State<Main> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Color.fromARGB(255, 41, 152, 0),
+        selectedItemColor: Colors.purple,
         unselectedItemColor: Colors.black,
         onTap: _onTap,
       ),
       floatingActionButton: SpeedDial(
         icon: Icons.add,
+        iconTheme: IconThemeData(color: Colors.white) ,
         activeIcon: Icons.close,
-        backgroundColor: Color.fromARGB(255, 41, 152, 0),
-        overlayColor: Colors.black,
+        backgroundColor: Colors.purple,
+        overlayColor: Colors.white,
         overlayOpacity: 0.5,
         children: [
           SpeedDialChild(
