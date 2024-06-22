@@ -10,29 +10,73 @@ class ChangePassword extends StatefulWidget {
 }
 
 class _ChangePasswordState extends State<ChangePassword> {
+  final oldPasswordController = TextEditingController();
   final newPasswordController = TextEditingController();
 
-  Future<void> _changePassword(BuildContext context) async {
-  try {
+  @override
+  void initState() {
+    super.initState();
+    // Load current user's email when widget initializes
+    _loadCurrentUserEmail();
+  }
+
+  String currentUserEmail = '';
+
+  Future<void> _loadCurrentUserEmail() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      // Prompt for re-authentication (example using email and password)
-      String email = user.email!;
-      String password = 'jason123'; // Replace with user's current password
+      setState(() {
+        currentUserEmail = user.email!;
+      });
+    }
+  }
 
-      AuthCredential credential = EmailAuthProvider.credential(email: email, password: password);
-      await user.reauthenticateWithCredential(credential);
+  Future<void> _changePassword(BuildContext context) async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // Prompt for re-authentication
+        String email = user.email!;
+        String password = oldPasswordController.text.trim();
 
-      // Now update the password
-      await user.updatePassword(newPasswordController.text.trim());
+        AuthCredential credential =
+            EmailAuthProvider.credential(email: email, password: password);
+        await user.reauthenticateWithCredential(credential);
 
-      // Show success dialog
+        // Update the password
+        await user.updatePassword(newPasswordController.text.trim());
+
+        // Show success dialog
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Success'),
+              content: Text('Password changed successfully'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        throw FirebaseAuthException(
+          code: 'user-not-found',
+          message: 'No user signed in.',
+        );
+      }
+    } catch (e) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Success'),
-            content: Text('Password changed successfully'),
+            title: Text('Error'),
+            content: Text('Failed to change password: ${e.toString()}'),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -44,32 +88,8 @@ class _ChangePasswordState extends State<ChangePassword> {
           );
         },
       );
-    } else {
-      throw FirebaseAuthException(
-        code: 'user-not-found',
-        message: 'No user signed in.',
-      );
     }
-  } catch (e) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Error'),
-          content: Text('Failed to change password: ${e.toString()}'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -98,8 +118,18 @@ class _ChangePasswordState extends State<ChangePassword> {
               ),
             ),
             const SizedBox(height: 10.0),
+            // Display current user email
+            Text(
+              'Current User: $currentUserEmail',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16.0,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 20.0),
             const Text(
-              'Enter your new password',
+              'Enter your old and new passwords',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16.0,
@@ -107,6 +137,20 @@ class _ChangePasswordState extends State<ChangePassword> {
               ),
             ),
             const SizedBox(height: 40.0),
+
+            // Old Password TextField
+            TextField(
+              controller: oldPasswordController,
+              decoration: InputDecoration(
+                labelText: 'Old Password',
+                prefixIcon: Icon(Icons.lock),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+              ),
+              obscureText: true,
+            ),
+            const SizedBox(height: 16.0),
 
             // New Password TextField
             TextField(
