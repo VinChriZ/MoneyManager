@@ -44,20 +44,23 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
             end: Alignment.bottomLeft,
         ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: const[
-          Text(
-            'Money Managers',
-            style: TextStyle(
-              fontStyle: FontStyle.normal,
-              color: Colors.white,
-              fontSize: 52,
-              fontWeight: FontWeight.bold
-              ),
-            )
-          ],
-        ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const[
+            Text(
+              'Money Managers',
+              style: TextStyle(
+                fontStyle: FontStyle.normal,
+                color: Colors.white,
+                fontSize: 30,
+                fontWeight: FontWeight.bold
+                ),
+              )
+            ],
+          ),
+      ),
       ),
     );
   }

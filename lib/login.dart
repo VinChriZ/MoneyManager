@@ -101,22 +101,22 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               SizedBox(height: 60.0),
               Icon(
-                Icons.lock,
+                Icons.attach_money,
                 size: 100,
-                color: Colors.blue,
+                color: Color.fromARGB(255, 112, 69, 222),
               ),
-              SizedBox(height: 40.0),
+              SizedBox(height: 10.0),
               Text(
                 'Welcome Back',
                 textAlign: TextAlign.center,
