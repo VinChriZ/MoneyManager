@@ -181,16 +181,19 @@ class _RegisterState extends State<Register> {
             const SizedBox(height: 30.0),
             
             // Register Button
-            ElevatedButton(
+            MaterialButton(
+              minWidth: double.infinity,
+              height: 60,
               onPressed: () {
                 _registerUser(context);
               },
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 16.0),
+              color: Color.fromARGB(255, 112, 69, 222), 
+                textColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 12.0),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-              ),
+                  side: BorderSide(color: Colors.black),
+                  borderRadius: BorderRadius.circular(15.0),
+                  ),
               child: const Text(
                 'Register',
                 style: TextStyle(fontSize: 18.0),

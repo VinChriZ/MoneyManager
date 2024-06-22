@@ -158,22 +158,10 @@ class _LoginState extends State<Login> {
                 ),
                 obscureText: true,
               ),
-              SizedBox(height: 30.0),
-              ElevatedButton(
-                onPressed: () => _signUserIn(context),
-                child: Text(
-                  'Login',
-                  style: TextStyle(fontSize: 18.0),
-                ),
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 12.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                ),
-              ),
-              SizedBox(height: 16.0),
-              ElevatedButton(
+              SizedBox(height: 32.0),
+              MaterialButton(
+                minWidth: double.infinity,
+                height: 60,
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => Register()),
@@ -181,13 +169,34 @@ class _LoginState extends State<Login> {
                 },
                 child: Text(
                   'Sign Up',
-                  style: TextStyle(fontSize: 18.0),
+                  style: TextStyle(fontWeight: FontWeight.w600,fontSize: 18.0),
                 ),
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 12.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
+                color: Color.fromARGB(255, 112, 69, 222), 
+                textColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 12.0),
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(color: Colors.black),
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+              ),
+              SizedBox(height: 16.0),
+              MaterialButton(
+                minWidth: double.infinity,
+                height: 60,
+                onPressed: () => _signUserIn(context),
+                child: Text(
+                  'Login',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 18.0,
                   ),
+                ),
+                color: Colors.white, 
+                textColor: Colors.black,
+                padding: EdgeInsets.symmetric(vertical: 12.0),
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(color: Colors.black),
+                  borderRadius: BorderRadius.circular(15.0),
                 ),
               ),
             ],

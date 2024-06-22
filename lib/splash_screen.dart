@@ -48,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         mainAxisAlignment: MainAxisAlignment.center,
         children: const[
           Text(
-            'montra',
+            'Money Managers',
             style: TextStyle(
               fontStyle: FontStyle.normal,
               color: Colors.white,
