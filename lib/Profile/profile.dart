@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_moneymanager/Profile/data_user.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import '../login.dart';
 import 'data_user.dart';
 import 'user.dart'; // Assuming this contains your User class definition
 
@@ -12,7 +14,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late User _user;
+  late UserObject _user;
   bool _isLoading = true;
 
   @override
@@ -110,7 +112,35 @@ class _ProfilePageState extends State<ProfilePage> {
                   ListTile(
                     leading: Icon(Icons.exit_to_app),
                     title: Text('Logout'),
-                    onTap: () {},
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Confirm Logout'),
+                            content: Text('Are you sure you want to logout?'),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  await FirebaseAuth.instance.signOut();
+                                  Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                        builder: (context) => Login()),
+                                  );
+                                },
+                                child: Text('Logout'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
                 ],
               ),
@@ -119,7 +149,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-Future<User> fetchUserDataAsObject(String docId) async {
+Future<UserObject> fetchUserDataAsObject(String docId) async {
   final url = Uri.https(
     'ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app',
     'users/$docId.json',
@@ -131,7 +161,7 @@ Future<User> fetchUserDataAsObject(String docId) async {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       if (data != null) {
-        return User(
+        return UserObject(
           name: data['name'],
           email: data['email'],
           uid: data['uid'],
