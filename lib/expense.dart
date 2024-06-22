@@ -130,8 +130,8 @@ class _ExpensePageState extends State<ExpensePage> {
     });
     Navigator.of(context).pop();
     Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => Main()),
-      );
+      MaterialPageRoute(builder: (context) => Main()),
+    );
   }
 
   void _updateChartData() {
@@ -364,9 +364,28 @@ class _ExpensePageState extends State<ExpensePage> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                'Total Expense: \$${totalExpense.toStringAsFixed(2)}',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              child: Card(
+                color: Colors.red,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      FaIcon(
+                        FontAwesomeIcons.moneyBillTransfer,
+                        color: Colors.white,
+                      ),
+                      Text(
+                        'Total Expense: \$${totalExpense.toStringAsFixed(2)}',
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                      SizedBox(), // Add any other widget if needed
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
