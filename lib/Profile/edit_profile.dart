@@ -1,11 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_moneymanager/Profile/data_user.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import '../login.dart';
+import 'package:http/http.dart' as http;
+import 'data_user.dart';
 
 class EditProfile extends StatefulWidget {
   EditProfile({Key? key}) : super(key: key);
@@ -24,51 +21,53 @@ class _EditProfileState extends State<EditProfile> {
   }
 
   Future<void> _loadUserData() async {
-      String docId = Provider.of<UserData>(context, listen: false).documentId;
-      final url = Uri.https(
-        'ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app',
-        'users/$docId.json',
-      );
-      final response = await http.get(url);
-      final userData = json.decode(response.body);
-      setState(() {
-        nameController.text = userData['name'];
-      });
-    
+    String docId = Provider.of<UserData>(context, listen: false).documentId;
+    final url = Uri.https(
+      'ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app',
+      'users/$docId.json',
+    );
+    final response = await http.get(url);
+    final userData = json.decode(response.body);
+    setState(() {
+      nameController.text = userData['name'];
+    });
   }
 
   Future<void> _saveProfile(BuildContext context) async {
     try {
       String docId = Provider.of<UserData>(context, listen: false).documentId;
-        final url = Uri.https(
-          'ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app',
-          'users/$docId.json',
-        );
-        await http.patch(
-          url,
-          body: json.encode({
-            'name': nameController.text,
-          }),
-        );
+      final url = Uri.https(
+        'ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app',
+        'users/$docId.json',
+      );
+      await http.patch(
+        url,
+        body: json.encode({
+          'name': nameController.text,
+        }),
+      );
 
-        // Show success dialog
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Success'),
-              content: Text('Profile updated successfully'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
+      // Update name in the UserData provider
+      Provider.of<UserData>(context, listen: false).setName(nameController.text);
+
+      // Show success dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Success'),
+            content: Text('Profile updated successfully'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     } catch (e) {
       // Show error dialog
       showDialog(
