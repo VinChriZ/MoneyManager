@@ -82,7 +82,7 @@ class _MainState extends State<Main> {
       ),
       floatingActionButton: SpeedDial(
         icon: Icons.add,
-        iconTheme: IconThemeData(color: Colors.white) ,
+        iconTheme: IconThemeData(color: Colors.white),
         activeIcon: Icons.close,
         backgroundColor: Colors.purple,
         overlayColor: Colors.white,

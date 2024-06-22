@@ -370,18 +370,22 @@ class _ExpensePageState extends State<ExpensePage> {
               padding: const EdgeInsets.all(16.0),
               child: LineChart(
                 LineChartData(
-                  borderData: FlBorderData(show: false),
+                  gridData: FlGridData(show: false),
+                  titlesData: FlTitlesData(show: false),
+                  borderData: FlBorderData(show: true),
                   lineBarsData: [
                     LineChartBarData(
                       spots: data,
-                      isCurved: true,
-                      color: Color.fromARGB(255, 255, 0, 0),
-                      barWidth: 2,
-                      belowBarData: BarAreaData(show: false),
+                      isCurved: false,
+                      color: Colors.red,
+                      barWidth: 3,
+                      dotData: FlDotData(show: true),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        color: Colors.red.withOpacity(0.3),
+                      ),
                     ),
                   ],
-                  titlesData: FlTitlesData(show: false),
-                  gridData: FlGridData(show: false),
                 ),
               ),
             ),

@@ -150,7 +150,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Text(
               'Home',
-              style: GoogleFonts.inter(color: Colors.black,fontWeight: FontWeight.bold),
+              style: GoogleFonts.inter(
+                  color: Colors.black, fontWeight: FontWeight.bold),
             ),
             Icon(Icons.notifications, color: Colors.purple),
           ],
@@ -270,7 +271,8 @@ class _HomeScreenState extends State<HomeScreen> {
             FaIcon(icon, color: arrowcolor),
             SizedBox(height: 8.0),
             Text(amount,
-                style: GoogleFonts.inter(fontSize: 18,fontWeight: FontWeight.bold)),
+                style: GoogleFonts.inter(
+                    fontSize: 18, fontWeight: FontWeight.bold)),
             Text(title, style: GoogleFonts.inter(color: Colors.black)),
           ],
         ),
@@ -356,7 +358,8 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Recent Transactions',
-            style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
+            style:
+                GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
         SizedBox(height: 16.0),
         ListView.builder(
           shrinkWrap: true,
