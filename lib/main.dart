@@ -5,6 +5,7 @@ import 'package:flutter_moneymanager/login.dart';
 import 'package:flutter_moneymanager/profile.dart';
 import 'package:flutter_moneymanager/income.dart';
 import 'package:flutter_moneymanager/expense.dart';
+import 'package:flutter_moneymanager/splash_screen.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => UserData(), // Provide UserData instance
       child: MaterialApp(
-        home: AuthPage(),
+        home: SplashScreen(),
       ),
     );
   }
