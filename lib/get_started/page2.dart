@@ -10,7 +10,7 @@ class Page2 extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Padding(
-        padding: EdgeInsets.only(left: 50.0,top: 40, right: 40),
+        padding: EdgeInsets.only(left: 50.0, top: 40, right: 40),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(10),
           child: Container(
@@ -31,7 +31,7 @@ class Page2 extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            "Know whre your",
+                            "Know where your",
                             style: GoogleFonts.inter(
                                 fontSize: 30, fontWeight: FontWeight.bold),
                           ),
@@ -46,12 +46,16 @@ class Page2 extends StatelessWidget {
                           Text(
                             "Track your transaction easily,",
                             style: GoogleFonts.inter(
-                                fontSize: 16, color: Colors.grey,fontWeight: FontWeight.w500),
+                                fontSize: 16,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w500),
                           ),
                           Text(
                             "with categories and financial report",
                             style: GoogleFonts.inter(
-                                fontSize: 16, color: Colors.grey,fontWeight: FontWeight.w500),
+                                fontSize: 16,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w500),
                           )
                         ],
                       ),
