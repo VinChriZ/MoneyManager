@@ -25,9 +25,8 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => UserData(), // Provide UserData instance
       child: MaterialApp(
-        // home: AuthPage(),
-        home: SplashScreen()
-      ),
+          // home: AuthPage(),
+          home: SplashScreen()),
     );
   }
 }
@@ -72,10 +71,6 @@ class _MainState extends State<Main> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

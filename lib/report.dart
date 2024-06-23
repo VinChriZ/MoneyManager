@@ -11,6 +11,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -119,10 +120,16 @@ class _ReportPageState extends State<ReportPage> {
     Map<int, double> incomeTransactions = {};
     Map<int, double> expenseTransactions = {};
 
-    // Initialize the maps with zero values for each day of the month
-    for (int day = 1; day <= 31; day++) {
-      incomeTransactions[day] = 0;
-      expenseTransactions[day] = 0;
+    if (_reportType == 'Monthly') {
+      for (int day = 1; day <= 31; day++) {
+        incomeTransactions[day] = 0;
+        expenseTransactions[day] = 0;
+      }
+    } else if (_reportType == 'Yearly') {
+      for (int month = 1; month <= 12; month++) {
+        incomeTransactions[month] = 0;
+        expenseTransactions[month] = 0;
+      }
     }
 
     for (var transaction in transactions) {
@@ -132,7 +139,9 @@ class _ReportPageState extends State<ReportPage> {
       int month = int.parse(dateParts[1]);
       int year = int.parse(dateParts[2]);
 
-      if (month == _currentMonth && year == _currentYear) {
+      if (_reportType == 'Monthly' &&
+          month == _currentMonth &&
+          year == _currentYear) {
         if (transaction['type'] == 'income') {
           incomeTransactions[day] =
               (incomeTransactions[day] ?? 0) + transaction['amount'];
@@ -140,17 +149,35 @@ class _ReportPageState extends State<ReportPage> {
           expenseTransactions[day] =
               (expenseTransactions[day] ?? 0) + transaction['amount'];
         }
+      } else if (_reportType == 'Yearly' && year == _currentYear) {
+        if (transaction['type'] == 'income') {
+          incomeTransactions[month] =
+              (incomeTransactions[month] ?? 0) + transaction['amount'];
+        } else if (transaction['type'] == 'expense') {
+          expenseTransactions[month] =
+              (expenseTransactions[month] ?? 0) + transaction['amount'];
+        }
       }
     }
 
     setState(() {
-      incomeData = incomeTransactions.entries
-          .map((entry) => FlSpot(entry.key.toDouble(), entry.value))
-          .toList();
+      if (_reportType == 'Monthly') {
+        incomeData = incomeTransactions.entries
+            .map((entry) => FlSpot(entry.key.toDouble(), entry.value))
+            .toList();
 
-      expenseData = expenseTransactions.entries
-          .map((entry) => FlSpot(entry.key.toDouble(), entry.value))
-          .toList();
+        expenseData = expenseTransactions.entries
+            .map((entry) => FlSpot(entry.key.toDouble(), entry.value))
+            .toList();
+      } else if (_reportType == 'Yearly') {
+        incomeData = incomeTransactions.entries
+            .map((entry) => FlSpot(entry.key.toDouble(), entry.value))
+            .toList();
+
+        expenseData = expenseTransactions.entries
+            .map((entry) => FlSpot(entry.key.toDouble(), entry.value))
+            .toList();
+      }
     });
   }
 
@@ -193,14 +220,12 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   Future<void> _generatePdfReport() async {
-    // Capture the chart as an image
     final boundary =
         _chartKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
     final image = await boundary.toImage(pixelRatio: 3.0);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     final pngBytes = byteData!.buffer.asUint8List();
 
-    // Prepare the transactions table data
     List<Map<String, dynamic>> filteredTransactions = _filterTransactions();
 
     final pdf = pw.Document();
@@ -214,9 +239,9 @@ class _ReportPageState extends State<ReportPage> {
               '$_reportType Report',
               style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
             ),
-            pw.Text('Month: $_currentMonth, Year: $_currentYear'),
+            pw.Text('Year: $_currentYear'),
+            if (_reportType == 'Monthly') pw.Text('Month: $_currentMonth'),
             pw.SizedBox(height: 20),
-            // Add the chart image
             pw.Image(pw.MemoryImage(pngBytes)),
             pw.SizedBox(height: 20),
             pw.Text(
@@ -247,24 +272,32 @@ class _ReportPageState extends State<ReportPage> {
     );
   }
 
-  void _showPreviousMonth() {
+  void _showPreviousPeriod() {
     setState(() {
-      if (_currentMonth > 1) {
-        _currentMonth--;
-      } else {
-        _currentMonth = 12;
+      if (_reportType == 'Monthly') {
+        if (_currentMonth > 1) {
+          _currentMonth--;
+        } else {
+          _currentMonth = 12;
+          _currentYear--;
+        }
+      } else if (_reportType == 'Yearly') {
         _currentYear--;
       }
       fetchFinancialData();
     });
   }
 
-  void _showNextMonth() {
+  void _showNextPeriod() {
     setState(() {
-      if (_currentMonth < 12) {
-        _currentMonth++;
-      } else {
-        _currentMonth = 1;
+      if (_reportType == 'Monthly') {
+        if (_currentMonth < 12) {
+          _currentMonth++;
+        } else {
+          _currentMonth = 1;
+          _currentYear++;
+        }
+      } else if (_reportType == 'Yearly') {
         _currentYear++;
       }
       fetchFinancialData();
@@ -344,7 +377,7 @@ class _ReportPageState extends State<ReportPage> {
                     children: [
                       IconButton(
                         icon: Icon(Icons.arrow_back),
-                        onPressed: _showPreviousMonth,
+                        onPressed: _showPreviousPeriod,
                       ),
                       Column(
                         children: [
@@ -353,12 +386,16 @@ class _ReportPageState extends State<ReportPage> {
                             style: TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold),
                           ),
-                          Text('Month: $_currentMonth, Year: $_currentYear'),
+                          Text(
+                            _reportType == 'Monthly'
+                                ? 'Month: $_currentMonth, Year: $_currentYear'
+                                : 'Year: $_currentYear',
+                          ),
                         ],
                       ),
                       IconButton(
                         icon: Icon(Icons.arrow_forward),
-                        onPressed: _showNextMonth,
+                        onPressed: _showNextPeriod,
                       ),
                       IconButton(
                         icon: Icon(Icons.calendar_today),
@@ -371,16 +408,16 @@ class _ReportPageState extends State<ReportPage> {
                   key: _chartKey,
                   child: SizedBox(
                     height: 300, // Set the height of the chart to 300
-                    width: double.infinity,
+                    width: 420,
                     child: LineChart(
                       LineChartData(
-                        minX: 1,
-                        maxX: 31,
+                        minX: _reportType == 'Monthly' ? 1 : 1,
+                        maxX: _reportType == 'Monthly' ? 31 : 12,
                         minY: 0,
                         titlesData: FlTitlesData(
                           leftTitles: AxisTitles(
                             sideTitles: SideTitles(
-                              showTitles: true,
+                              showTitles: false,
                               interval: 100,
                               getTitlesWidget: (value, meta) {
                                 return Padding(
@@ -398,9 +435,14 @@ class _ReportPageState extends State<ReportPage> {
                               getTitlesWidget: (value, meta) {
                                 return Padding(
                                   padding: const EdgeInsets.only(top: 8.0),
-                                  child: Text(value.toInt().toString(),
-                                      style: TextStyle(
-                                          color: Colors.black, fontSize: 10)),
+                                  child: Text(
+                                    _reportType == 'Monthly'
+                                        ? value.toInt().toString()
+                                        : DateFormat.MMM()
+                                            .format(DateTime(0, value.toInt())),
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 10),
+                                  ),
                                 );
                               },
                             ),
