@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_moneymanager/get_started/get_started_page.dart';
 import 'package:flutter_moneymanager/home.dart';
 import 'package:flutter_moneymanager/login.dart';
 import 'package:flutter_moneymanager/main.dart';class SplashScreen extends StatefulWidget {
@@ -22,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     Future.delayed(const Duration(seconds: 2), (){
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (_) => Login(),
+        builder: (_) => GetStartedPage(),
       ));
     });
   }
