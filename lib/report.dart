@@ -505,52 +505,97 @@ class _ReportPageState extends State<ReportPage> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      DropdownButton<String>(
-                        value: filterType,
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            filterType = newValue!;
-                          });
-                        },
-                        items: <String>['All', 'Income', 'Expense']
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
+                      // Sorting Controls
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: ToggleButtons(
+                          borderColor: Colors.grey[300],
+                          fillColor:
+                              Theme.of(context).primaryColor.withOpacity(0.1),
+                          borderWidth: 1,
+                          selectedBorderColor: Colors.grey[400],
+                          borderRadius: BorderRadius.circular(20.0),
+                          children: <Widget>[
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Text('Date'),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Text('Amount'),
+                            ),
+                          ],
+                          onPressed: (int index) {
+                            setState(() {
+                              sortOrder = index == 0 ? 'Date' : 'Amount';
+                            });
+                          },
+                          isSelected: [
+                            sortOrder == 'Date',
+                            sortOrder == 'Amount',
+                          ],
+                        ),
                       ),
-                      DropdownButton<String>(
-                        value: filterCategory,
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            filterCategory = newValue!;
-                          });
-                        },
-                        items: allCategories
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
+
+                      // Filter Type Dropdown
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: filterType,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                filterType = newValue!;
+                              });
+                            },
+                            items: <String>['All', 'Income', 'Expense']
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                        ),
                       ),
-                      DropdownButton<String>(
-                        value: sortOrder,
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            sortOrder = newValue!;
-                          });
-                        },
-                        items: <String>['Date', 'Amount']
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
+
+                      // Filter Category Dropdown
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: filterCategory,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                filterCategory = newValue!;
+                              });
+                            },
+                            items: allCategories
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -560,20 +605,60 @@ class _ReportPageState extends State<ReportPage> {
                     itemCount: filteredTransactions.length,
                     itemBuilder: (context, index) {
                       final transaction = filteredTransactions[index];
-                      return ListTile(
-                        leading: FaIcon(transaction['icon'],
-                            color: transaction['color']),
-                        title: Text(
-                          'Rp ${transaction['amount'].toString()}',
-                          style: GoogleFonts.inter(
-                              fontSize: 16, fontWeight: FontWeight.bold),
+                      bool isIncome = transaction['type'] == 'income';
+                      return Card(
+                        elevation: 2,
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            radius: 25,
+                            backgroundColor:
+                                isIncome ? Colors.green[100] : Colors.red[100],
+                            child: FaIcon(transaction['icon'],
+                                color: isIncome ? Colors.green : Colors.red),
+                          ),
+                          title: Text(
+                            '${transaction['category']}',
+                            style: GoogleFonts.inter(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          subtitle: Text(
+                            'Rp ${transaction['amount'].toString()}',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          trailing: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                transaction['time'],
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              Text(
+                                isIncome ? 'Income' : 'Expense',
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  color: isIncome ? Colors.green : Colors.red,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        subtitle: Text(transaction['category']),
-                        trailing: Text(transaction['time']),
                       );
                     },
                   ),
-                ),
+                )
               ],
             ),
     );
