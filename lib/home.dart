@@ -20,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> transactions = [];
   bool isLoading = true;
   String selectedTimeFilter = 'Day';
+  String? selectedCategory;
 
   final Map<String, Map<String, dynamic>> categoriesIncome = {
     'Salary': {'icon': Icons.money, 'color': Colors.blue},
@@ -279,11 +280,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           Text('Categories',
                               style: GoogleFonts.inter(
                                   fontSize: 18, fontWeight: FontWeight.bold)),
-                          // _buildSpendFrequencyChart(),
+                          _buildCategoryButtons(),
                         ],
                       ),
                     ),
-                    _buildTimeFilter(),
                     SizedBox(height: 16.0),
                     _buildRecentTransactions(),
                   ],
@@ -293,76 +293,50 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _signOut(BuildContext context) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Confirm Logout'),
-          content: Text('Are you sure you want to logout?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => Login()),
-                );
-              },
-              child: Text('Logout'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  Widget _buildCategoryButtons() {
+    List<Widget> buttons = [
+      _buildCategoryButton(null, Icons.category, Color(0xFF38648c)),
+    ];
 
-  Widget _buildSummaryCard(String title, String amount, Color color,
-      Color arrowcolor, IconData icon) {
-    return Card(
-      color: color.withOpacity(1),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            FaIcon(icon, color: arrowcolor),
-            SizedBox(height: 8.0),
-            Text(amount,
-                style: GoogleFonts.inter(
-                    fontSize: 18, fontWeight: FontWeight.bold)),
-            Text(title, style: GoogleFonts.inter(color: Colors.black)),
-          ],
-        ),
+    categoriesExpense.forEach((category, data) {
+      buttons
+          .add(_buildCategoryButton(category, data['icon'], Color(0xFF38648c)));
+    });
+
+    categoriesIncome.forEach((category, data) {
+      buttons
+          .add(_buildCategoryButton(category, data['icon'], Color(0xFF38648c)));
+    });
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: buttons,
       ),
     );
   }
 
-  Widget _buildTimeFilter() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _buildTimeFilterChip('Day'),
-        _buildTimeFilterChip('Week'),
-        _buildTimeFilterChip('Month'),
-      ],
-    );
-  }
-
-  Widget _buildTimeFilterChip(String label) {
-    return ChoiceChip(
-      label: Text(label),
-      selected: selectedTimeFilter == label,
-      onSelected: (bool selected) {
+  Widget _buildCategoryButton(
+    String? category,
+    IconData iconData,
+    Color buttonColor,
+  ) {
+    return ElevatedButton(
+      onPressed: () {
         setState(() {
-          selectedTimeFilter = label;
+          selectedCategory = category;
         });
-        // Handle chip selection
       },
+      style: ElevatedButton.styleFrom(
+        padding: EdgeInsets.all(8.0), // Adjust padding here
+        backgroundColor:
+            selectedCategory == category ? Color(0xFF71242c) : buttonColor,
+        shape: CircleBorder(),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0), // Adjust inner padding here
+        child: Icon(iconData, color: Colors.white),
+      ),
     );
   }
 
@@ -501,16 +475,23 @@ class _HomeScreenState extends State<HomeScreen> {
           itemBuilder: (context, index) {
             final transaction = transactions[index];
             final isIncome = transaction['type'] == 'income';
-            return ListTile(
-              leading: Icon(transaction['icon'], color: transaction['color']),
-              title: Text(transaction['category']),
-              subtitle: Text(transaction['time'].toString()),
-              trailing: Text(
-                'Rp ${transaction['amount'].toStringAsFixed(0)}',
-                style: TextStyle(
-                    color: isIncome ? Colors.green : Colors.red, fontSize: 20),
-              ),
-            );
+            if (selectedCategory == null ||
+                selectedCategory == 'All' ||
+                selectedCategory == transaction['category']) {
+              return ListTile(
+                leading: Icon(transaction['icon'], color: transaction['color']),
+                title: Text(transaction['category']),
+                subtitle: Text(transaction['time'].toString()),
+                trailing: Text(
+                  'Rp ${transaction['amount'].toStringAsFixed(0)}',
+                  style: TextStyle(
+                      color: isIncome ? Colors.green : Colors.red,
+                      fontSize: 16),
+                ),
+              );
+            } else {
+              return Container(); // Empty container if transaction doesn't match selected category
+            }
           },
         ),
       ],

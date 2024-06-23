@@ -92,7 +92,7 @@ class _MainState extends State<Main> {
         children: [
           SpeedDialChild(
             child: Icon(Icons.arrow_downward, color: Colors.white),
-            backgroundColor: Colors.green,
+            backgroundColor: Color(0xFF77DD77),
             label: 'Income',
             onTap: () {
               Navigator.push(
@@ -106,7 +106,7 @@ class _MainState extends State<Main> {
           ),
           SpeedDialChild(
             child: Icon(Icons.arrow_upward, color: Colors.white),
-            backgroundColor: Colors.red,
+            backgroundColor: Color(0xFFFF6961),
             label: 'Expense',
             onTap: () {
               Navigator.push(
