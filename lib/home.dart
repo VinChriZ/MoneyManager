@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_moneymanager/report.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -195,78 +196,115 @@ class _HomeScreenState extends State<HomeScreen> {
                       elevation: 4.0,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Stack(
                           children: [
-                            Text(
-                              'Total Balance',
-                              style: GoogleFonts.inter(
-                                  color: Colors.white, fontSize: 18),
-                            ),
-                            Text(
-                              'Rp ${accountBalance.toStringAsFixed(1)}',
-                              style: GoogleFonts.inter(
-                                  color: const Color(0xFFe9eff4),
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(height: 16.0),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        FaIcon(FontAwesomeIcons.arrowDown,
-                                            color: const Color(0xFFe9eff4)),
-                                        SizedBox(width: 8.0),
-                                        Text(
-                                          'Income',
-                                          style: GoogleFonts.inter(
-                                              color: const Color(0xFFe9eff4),
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 4.0),
-                                    Text(
-                                      'Rp $totalIncome',
-                                      style: GoogleFonts.inter(
-                                          fontSize: 14,
-                                          color: const Color(0xFFe9eff4)),
-                                    ),
-                                  ],
+                                Text(
+                                  'Total Balance',
+                                  style: GoogleFonts.inter(
+                                      color: Colors.white, fontSize: 18),
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                Text(
+                                  'Rp ${accountBalance.toStringAsFixed(1)}',
+                                  style: GoogleFonts.inter(
+                                      color: const Color(0xFFe9eff4),
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(height: 16.0),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Row(
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        FaIcon(FontAwesomeIcons.arrowUp,
-                                            color: const Color(0xFFe9eff4)),
-                                        SizedBox(width: 8.0),
+                                        Row(
+                                          children: [
+                                            FaIcon(FontAwesomeIcons.arrowDown,
+                                                color: const Color(0xFFe9eff4)),
+                                            SizedBox(width: 8.0),
+                                            Text(
+                                              'Income',
+                                              style: GoogleFonts.inter(
+                                                  color:
+                                                      const Color(0xFFe9eff4),
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 4.0),
                                         Text(
-                                          'Expenses',
+                                          'Rp $totalIncome',
                                           style: GoogleFonts.inter(
-                                              color: const Color(0xFFe9eff4),
                                               fontSize: 14,
-                                              fontWeight: FontWeight.bold),
+                                              color: const Color(0xFFe9eff4)),
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 4.0),
-                                    Text(
-                                      'Rp $totalExpenses',
-                                      style: GoogleFonts.inter(
-                                          fontSize: 14,
-                                          color: const Color(0xFFe9eff4)),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            FaIcon(FontAwesomeIcons.arrowUp,
+                                                color: const Color(0xFFe9eff4)),
+                                            SizedBox(width: 8.0),
+                                            Text(
+                                              'Expenses',
+                                              style: GoogleFonts.inter(
+                                                  color:
+                                                      const Color(0xFFe9eff4),
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 4.0),
+                                        Text(
+                                          'Rp $totalExpenses',
+                                          style: GoogleFonts.inter(
+                                              fontSize: 14,
+                                              color: const Color(0xFFe9eff4)),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
                               ],
+                            ),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => ReportPage()),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFFe9eff4),
+                                  foregroundColor: Color(0xFF38648c),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12.0, vertical: 8.0),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                ),
+                                child: Text(
+                                  'View Report',
+                                  style: GoogleFonts.inter(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -286,6 +324,29 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     SizedBox(height: 16.0),
                     _buildRecentTransactions(),
+                    SizedBox(height: 16.0),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ReportPage()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF38648c),
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 24.0, vertical: 12.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      child: Text(
+                        'View Report',
+                        style: GoogleFonts.inter(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ],
                 ),
               ),
