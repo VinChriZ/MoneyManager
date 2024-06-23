@@ -24,7 +24,8 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => UserData(), // Provide UserData instance
       child: MaterialApp(
-        home: AuthPage(),
+        // home: AuthPage(),
+        home: SplashScreen()
       ),
     );
   }
