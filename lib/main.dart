@@ -5,6 +5,7 @@ import 'package:flutter_moneymanager/login.dart';
 import 'package:flutter_moneymanager/Profile/profile.dart';
 import 'package:flutter_moneymanager/income.dart';
 import 'package:flutter_moneymanager/expense.dart';
+import 'package:flutter_moneymanager/report.dart';
 import 'package:flutter_moneymanager/splash_screen.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -49,6 +50,7 @@ class _MainState extends State<Main> {
     _pages = [
       HomeScreen(documentID: widget.documentID),
       ProfilePage(),
+      ReportPage()
     ];
   }
 
@@ -70,6 +72,10 @@ class _MainState extends State<Main> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

@@ -137,35 +137,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     double accountBalance = totalIncome - totalExpenses;
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    String userName = currentUser?.displayName ?? "User";
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const CircleAvatar(
-              backgroundImage: NetworkImage('https://via.placeholder.com/150'),
-            ),
-            Text(
-              'Home',
-              style: GoogleFonts.inter(
-                  color: Colors.black, fontWeight: FontWeight.bold),
-            ),
-            Icon(Icons.notifications, color: Colors.purple),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () {
-              _signOut(context);
-            },
-            color: Colors.red,
-          ),
-        ],
-      ),
+      backgroundColor: Color.fromARGB(251, 253, 254, 255),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -173,51 +149,122 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    Container(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text('Account Balance',
-                              style: GoogleFonts.inter(color: Colors.grey)),
-                          Text('\$$accountBalance',
-                              style: GoogleFonts.inter(
-                                  fontSize: 36, fontWeight: FontWeight.bold)),
-                          SizedBox(height: 16.0),
-                        ],
-                      ),
-                    ),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(
-                          child: _buildSummaryCard(
-                              'Income',
-                              '\$$totalIncome',
-                              Colors.green,
-                              Colors.white,
-                              FontAwesomeIcons.arrowDown),
+                        const CircleAvatar(
+                          backgroundImage:
+                              NetworkImage('https://via.placeholder.com/150'),
                         ),
-                        SizedBox(width: 16.0),
-                        Expanded(
-                          child: _buildSummaryCard(
-                              'Expenses',
-                              '\$$totalExpenses',
-                              Colors.red,
-                              Colors.white,
-                              FontAwesomeIcons.arrowUp),
+                        SizedBox(width: 8.0),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Hi $userName',
+                              style: GoogleFonts.inter(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              'Welcome back!',
+                              style: GoogleFonts.inter(
+                                  fontSize: 18, fontWeight: FontWeight.normal),
+                            ),
+                          ],
                         ),
                       ],
+                    ),
+                    SizedBox(height: 20.0),
+                    Card(
+                      color: Color(0xFF38648c),
+                      elevation: 4.0,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Total Balance',
+                              style: GoogleFonts.inter(
+                                  color: Colors.white, fontSize: 18),
+                            ),
+                            Text(
+                              'Rp ${accountBalance.toStringAsFixed(1)}',
+                              style: GoogleFonts.inter(
+                                  color: const Color(0xFFe9eff4),
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 16.0),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        FaIcon(FontAwesomeIcons.arrowDown,
+                                            color: const Color(0xFFe9eff4)),
+                                        SizedBox(width: 8.0),
+                                        Text(
+                                          'Income',
+                                          style: GoogleFonts.inter(
+                                              color: const Color(0xFFe9eff4),
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 4.0),
+                                    Text(
+                                      'Rp $totalIncome',
+                                      style: GoogleFonts.inter(
+                                          fontSize: 14,
+                                          color: const Color(0xFFe9eff4)),
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        FaIcon(FontAwesomeIcons.arrowUp,
+                                            color: const Color(0xFFe9eff4)),
+                                        SizedBox(width: 8.0),
+                                        Text(
+                                          'Expenses',
+                                          style: GoogleFonts.inter(
+                                              color: const Color(0xFFe9eff4),
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 4.0),
+                                    Text(
+                                      'Rp $totalExpenses',
+                                      style: GoogleFonts.inter(
+                                          fontSize: 14,
+                                          color: const Color(0xFFe9eff4)),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                     SizedBox(height: 16.0),
                     Container(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Spend Frequency',
+                          Text('Categories',
                               style: GoogleFonts.inter(
                                   fontSize: 18, fontWeight: FontWeight.bold)),
-                          _buildSpendFrequencyChart(), // Add chart here
+                          // _buildSpendFrequencyChart(),
                         ],
                       ),
                     ),
