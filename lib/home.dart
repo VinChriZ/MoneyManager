@@ -21,12 +21,21 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isLoading = true;
   String selectedTimeFilter = 'Day';
 
-  final Map<String, Map<String, dynamic>> categories = {
+  final Map<String, Map<String, dynamic>> categoriesIncome = {
     'Salary': {'icon': Icons.money, 'color': Colors.blue},
     'Freelance': {'icon': Icons.laptop_mac, 'color': Colors.green},
     'Investments': {'icon': Icons.show_chart, 'color': Colors.orange},
     'Gifts': {'icon': Icons.card_giftcard, 'color': Colors.purple},
     'Rent': {'icon': Icons.home, 'color': Colors.brown},
+    'Other': {'icon': Icons.category, 'color': Colors.grey},
+  };
+
+  final Map<String, Map<String, dynamic>> categoriesExpense = {
+    'Food': {'icon': Icons.fastfood, 'color': Colors.red},
+    'Transport': {'icon': Icons.directions_car, 'color': Colors.blue},
+    'Shopping': {'icon': Icons.shopping_cart, 'color': Colors.green},
+    'Entertainment': {'icon': Icons.movie, 'color': Colors.purple},
+    'Bills': {'icon': Icons.receipt, 'color': Colors.orange},
     'Other': {'icon': Icons.category, 'color': Colors.grey},
   };
 
@@ -105,25 +114,31 @@ class _HomeScreenState extends State<HomeScreen> {
 
     incomeSnapshot.docs.forEach((doc) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      var category = data['category'];
+      var categoryData =
+          categoriesIncome[category] ?? categoriesIncome['Other'];
       fetchedTransactions.add({
         'type': 'income',
         'amount': data['amount'],
         'time': data['time'], // Date in string format "21-6-2024"
-        'category': data['category'],
-        'icon': FontAwesomeIcons.arrowDown,
-        'color': Colors.green,
+        'category': category,
+        'icon': categoryData?['icon'],
+        'color': categoryData?['color'],
       });
     });
 
     expenseSnapshot.docs.forEach((doc) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      var category = data['category'];
+      var categoryData =
+          categoriesExpense[category] ?? categoriesExpense['Other'];
       fetchedTransactions.add({
         'type': 'expense',
         'amount': data['amount'],
         'time': data['time'], // Date in string format "21-6-2024"
-        'category': data['category'],
-        'icon': FontAwesomeIcons.arrowUp,
-        'color': Colors.red,
+        'category': category,
+        'icon': categoryData?['icon'],
+        'color': categoryData?['color'],
       });
     });
 
@@ -485,11 +500,16 @@ class _HomeScreenState extends State<HomeScreen> {
           itemCount: transactions.length,
           itemBuilder: (context, index) {
             final transaction = transactions[index];
+            final isIncome = transaction['type'] == 'income';
             return ListTile(
-              leading: FaIcon(transaction['icon'], color: transaction['color']),
-              title: Text('\$${transaction['amount']}'),
-              subtitle: Text(transaction['category']),
-              trailing: Text(transaction['time'].toString()),
+              leading: Icon(transaction['icon'], color: transaction['color']),
+              title: Text(transaction['category']),
+              subtitle: Text(transaction['time'].toString()),
+              trailing: Text(
+                'Rp ${transaction['amount'].toStringAsFixed(0)}',
+                style: TextStyle(
+                    color: isIncome ? Colors.green : Colors.red, fontSize: 20),
+              ),
             );
           },
         ),
