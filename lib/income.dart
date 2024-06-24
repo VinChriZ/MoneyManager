@@ -94,6 +94,7 @@ class _IncomePageState extends State<IncomePage> {
     List<Map<String, dynamic>> fetchedIncomes = snapshot.docs.map((doc) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       return {
+        'documentId': doc.id,
         'category': data['category'],
         'amount': '+Rp. ${data['amount']}',
         'time': data['time'],
@@ -151,6 +152,29 @@ class _IncomePageState extends State<IncomePage> {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => Main()),
     );
+  }
+
+  void _deleteIncome(String documentId) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      // Handle the case where the user is not authenticated
+      return;
+    }
+
+    String uid = user.uid;
+    CollectionReference incomesRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('incomes');
+
+    await incomesRef.doc(documentId).delete();
+
+    setState(() {
+      incomes.removeWhere((income) => income['documentId'] == documentId);
+      totalIncome = incomes.fold(
+          0.0, (sum, item) => sum + double.parse(item['amount'].substring(4)));
+      _updateChartData();
+    });
   }
 
   void _updateChartData() {
@@ -548,10 +572,20 @@ class _IncomePageState extends State<IncomePage> {
                             style: GoogleFonts.inter(fontSize: 16)),
                         subtitle: Text(income['time'],
                             style: GoogleFonts.inter(fontSize: 14)),
-                        trailing: Text(
-                          income['amount'],
-                          style: GoogleFonts.inter(
-                              fontSize: 16, fontWeight: FontWeight.bold),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              income['amount'],
+                              style: GoogleFonts.inter(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () =>
+                                  _deleteIncome(income['documentId']),
+                            ),
+                          ],
                         ),
                       );
                     },

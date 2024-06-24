@@ -93,6 +93,7 @@ class _ExpensePageState extends State<ExpensePage> {
     List<Map<String, dynamic>> fetchedExpenses = snapshot.docs.map((doc) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       return {
+        'documentId': doc.id, // Add the document ID for deletion
         'category': data['category'],
         'amount': data['amount'],
         'time': data['time'],
@@ -148,6 +149,28 @@ class _ExpensePageState extends State<ExpensePage> {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => Main()),
     );
+  }
+
+  void _deleteExpense(String documentId) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      // Handle the case where the user is not authenticated
+      return;
+    }
+
+    String uid = user.uid;
+    CollectionReference expensesRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('expenses');
+
+    await expensesRef.doc(documentId).delete();
+
+    setState(() {
+      expenses.removeWhere((expense) => expense['documentId'] == documentId);
+      totalExpense = expenses.fold(0.0, (sum, item) => sum + item['amount']);
+      _updateChartData();
+    });
   }
 
   void _updateChartData() {
@@ -511,7 +534,7 @@ class _ExpensePageState extends State<ExpensePage> {
                         lineBarsData: [
                           LineChartBarData(
                             spots: data,
-                            isCurved: true,
+                            isCurved: false,
                             color: Colors.red,
                             barWidth: 4,
                             dotData: FlDotData(show: true),
@@ -548,10 +571,20 @@ class _ExpensePageState extends State<ExpensePage> {
                             style: GoogleFonts.inter(fontSize: 16)),
                         subtitle: Text(expense['time'],
                             style: GoogleFonts.inter(fontSize: 14)),
-                        trailing: Text(
-                          'Rp. ${expense['amount']}',
-                          style: GoogleFonts.inter(
-                              fontSize: 16, fontWeight: FontWeight.bold),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Rp. ${expense['amount']}',
+                              style: GoogleFonts.inter(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () =>
+                                  _deleteExpense(expense['documentId']),
+                            ),
+                          ],
                         ),
                       );
                     },

@@ -436,45 +436,48 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontWeight: FontWeight.bold,
                 color: Colors.white)),
         SizedBox(height: 16.0),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: transactions.length,
-          itemBuilder: (context, index) {
-            final transaction = transactions[index];
-            final isIncome = transaction['type'] == 'income';
-            final amountText = isIncome
-                ? '+Rp. ${transaction['amount'].toStringAsFixed(0)}'
-                : '-Rp. ${transaction['amount'].toStringAsFixed(0)}';
-            if (selectedCategory == null ||
-                selectedCategory == 'All' ||
-                selectedCategory == transaction['category']) {
-              return Card(
-                elevation: 2.0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: ListTile(
-                  leading:
-                      Icon(transaction['icon'], color: transaction['color']),
-                  title: Text(transaction['category'],
-                      style: GoogleFonts.inter(
-                          fontSize: 16, fontWeight: FontWeight.bold)),
-                  subtitle: Text(transaction['time'].toString(),
-                      style: GoogleFonts.inter(fontSize: 14)),
-                  trailing: Text(
-                    amountText,
-                    style: TextStyle(
-                        color: isIncome ? Colors.green : Colors.red,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold),
+        Container(
+          height: MediaQuery.of(context).size.height,
+          child: ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: transactions.length,
+            itemBuilder: (context, index) {
+              final transaction = transactions[index];
+              final isIncome = transaction['type'] == 'income';
+              final amountText = isIncome
+                  ? '+Rp. ${transaction['amount'].toStringAsFixed(0)}'
+                  : '-Rp. ${transaction['amount'].toStringAsFixed(0)}';
+              if (selectedCategory == null ||
+                  selectedCategory == 'All' ||
+                  selectedCategory == transaction['category']) {
+                return Card(
+                  elevation: 2.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                ),
-              );
-            } else {
-              return Container();
-            }
-          },
+                  child: ListTile(
+                    leading:
+                        Icon(transaction['icon'], color: transaction['color']),
+                    title: Text(transaction['category'],
+                        style: GoogleFonts.inter(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    subtitle: Text(transaction['time'].toString(),
+                        style: GoogleFonts.inter(fontSize: 14)),
+                    trailing: Text(
+                      amountText,
+                      style: TextStyle(
+                          color: isIncome ? Colors.green : Colors.red,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                );
+              } else {
+                return Container();
+              }
+            },
+          ),
         ),
       ],
     );
