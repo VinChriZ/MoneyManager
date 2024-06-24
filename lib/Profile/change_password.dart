@@ -91,103 +91,137 @@ class _ChangePasswordState extends State<ChangePassword> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Change Password'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 20.0),
-            const Icon(
-              Icons.lock,
-              size: 100,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 20.0),
-            const Text(
-              'Change Password',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('Change Password', style: TextStyle(fontWeight: FontWeight.bold)),
+      backgroundColor: Color.fromARGB(255, 109, 152, 217), // Blue color
+    ),
+    body: Container(
+      width: double.infinity,
+      height: double.infinity,
+      color: Color.fromARGB(255, 109, 152, 217), // Blue color
+      child: Center(
+        child: Stack(
+          alignment: Alignment.topCenter,
+          children: <Widget>[
+            Container(
+              width: MediaQuery.of(context).size.width * 0.9,
+              height: MediaQuery.of(context).size.height * 0.85,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
               ),
-            ),
-            const SizedBox(height: 10.0),
-            // Display current user email
-            Text(
-              'Current User: $currentUserEmail',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16.0,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 20.0),
-            const Text(
-              'Enter your old and new passwords',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16.0,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 40.0),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 20.0),
+                    const Icon(
+                      Icons.lock,
+                      size: 100,
+                      color: Colors.blue,
+                    ),
+                    const SizedBox(height: 20.0),
+                    const Text(
+                      'Change Password',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10.0),
+                    // Display current user email
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          text: 'Current User: ',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: const Color.fromARGB(255, 63, 63, 63),
+                          ),
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: currentUserEmail,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20.0),
+                    const Text(
+                      'Enter your old and new passwords',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 20.0, ),
 
-            // Old Password TextField
-            TextField(
-              controller: oldPasswordController,
-              decoration: InputDecoration(
-                labelText: 'Old Password',
-                prefixIcon: Icon(Icons.lock),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
+                    // Old Password TextField
+                    TextField(
+                      controller: oldPasswordController,
+                      decoration: InputDecoration(
+                        labelText: 'Old Password',
+                        prefixIcon: Icon(Icons.lock),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                      obscureText: true,
+                    ),
+                    const SizedBox(height: 16.0,),
+
+                    // New Password TextField
+                    TextField(
+                      controller: newPasswordController,
+                      decoration: InputDecoration(
+                        labelText: 'New Password',
+                        prefixIcon: Icon(Icons.lock),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                      obscureText: true,
+                    ),
+                    const SizedBox(height: 16.0),
+
+                    // Change Password Button
+                    MaterialButton(
+                      minWidth: double.infinity,
+                      height: 60,
+                      onPressed: () {
+                        _changePassword(context);
+                      },
+                      color: Color.fromARGB(255, 112, 69, 222),
+                      textColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 12.0),
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(color: Colors.black),
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: const Text(
+                        'Change Password',
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 16.0),
-
-            // New Password TextField
-            TextField(
-              controller: newPasswordController,
-              decoration: InputDecoration(
-                labelText: 'New Password',
-                prefixIcon: Icon(Icons.lock),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 16.0),
-
-            // Change Password Button
-            MaterialButton(
-              minWidth: double.infinity,
-              height: 60,
-              onPressed: () {
-                _changePassword(context);
-              },
-              color: Color.fromARGB(255, 112, 69, 222),
-              textColor: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: 12.0),
-              shape: RoundedRectangleBorder(
-                side: BorderSide(color: Colors.black),
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              child: const Text(
-                'Change Password',
-                style: TextStyle(fontSize: 18.0),
               ),
             ),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
