@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_moneymanager/Profile/profile.dart';
+import 'package:flutter_moneymanager/main.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'data_user.dart';
@@ -64,7 +65,7 @@ class _EditProfileState extends State<EditProfile> {
                 onPressed: () {
                   Navigator.of(context).pop();
                   Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => ProfileCard()),
+                    MaterialPageRoute(builder: (context) => Main()),
                   );
                 },
                 child: Text('OK'),
