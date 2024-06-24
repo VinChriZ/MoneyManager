@@ -481,7 +481,7 @@ class _ExpensePageState extends State<ExpensePage> {
                       ),
                       SizedBox(width: 8.0), // Add space between icon and text
                       Text(
-                        'Total Expense: \$${totalExpense.toStringAsFixed(2)}',
+                        'Total Expense: \Rp. ${totalExpense.toStringAsFixed(2)}',
                         style: GoogleFonts.inter(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -549,7 +549,7 @@ class _ExpensePageState extends State<ExpensePage> {
                         subtitle: Text(expense['time'],
                             style: GoogleFonts.inter(fontSize: 14)),
                         trailing: Text(
-                          '\$${expense['amount']}',
+                          'Rp. ${expense['amount']}',
                           style: GoogleFonts.inter(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),

@@ -95,7 +95,7 @@ class _IncomePageState extends State<IncomePage> {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       return {
         'category': data['category'],
-        'amount': '+\$${data['amount']}',
+        'amount': '+Rp. ${data['amount']}',
         'time': data['time'],
         'icon': IconData(data['icon'], fontFamily: 'MaterialIcons'),
         'color': Color(data['color']),
@@ -109,7 +109,7 @@ class _IncomePageState extends State<IncomePage> {
             incomeDate.year == _currentYear;
       }).toList();
       totalIncome = incomes.fold(
-          0.0, (sum, item) => sum + double.parse(item['amount'].substring(2)));
+          0.0, (sum, item) => sum + double.parse(item['amount'].substring(4)));
       _updateChartData();
     });
   }
@@ -139,7 +139,7 @@ class _IncomePageState extends State<IncomePage> {
     setState(() {
       incomes.add({
         'category': category,
-        'amount': '+\$$amount',
+        'amount': '+Rp. $amount',
         'time': time,
         'icon': icon,
         'color': color,
@@ -163,7 +163,7 @@ class _IncomePageState extends State<IncomePage> {
 
       if (day != null && day >= 1 && day <= 31) {
         newData[day - 1] = FlSpot(day.toDouble(),
-            newData[day - 1].y + double.parse(income['amount'].substring(2)));
+            newData[day - 1].y + double.parse(income['amount'].substring(4)));
       }
     }
 
@@ -181,14 +181,14 @@ class _IncomePageState extends State<IncomePage> {
       if (incomeDate.month == month && incomeDate.year == year) {
         int day = incomeDate.day;
         newData[day - 1] = FlSpot(day.toDouble(),
-            newData[day - 1].y + double.parse(income['amount'].substring(2)));
+            newData[day - 1].y + double.parse(income['amount'].substring(4)));
       }
     }
 
     setState(() {
       data = newData;
       totalIncome = incomes.fold(
-          0.0, (sum, item) => sum + double.parse(item['amount'].substring(2)));
+          0.0, (sum, item) => sum + double.parse(item['amount'].substring(4)));
     });
   }
 
@@ -481,7 +481,7 @@ class _IncomePageState extends State<IncomePage> {
                         color: Colors.white,
                       ),
                       Text(
-                        'Total Income: \$${totalIncome.toStringAsFixed(2)}',
+                        '  Total Income: Rp. ${totalIncome.toStringAsFixed(2)}',
                         style: GoogleFonts.inter(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,

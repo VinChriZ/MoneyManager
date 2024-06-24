@@ -60,8 +60,14 @@ class _HomeScreenState extends State<HomeScreen> {
       'icon': Icons.movie,
       'color': Colors.purple.withOpacity(0.7)
     },
-    'Bills': {'icon': Icons.receipt, 'color': Colors.orange.withOpacity(0.7)},
-    'Other': {'icon': Icons.category, 'color': Colors.grey.withOpacity(0.7)},
+    'Bills': {
+      'icon': Icons.receipt,
+      'color': Colors.orange.withOpacity(0.7),
+    },
+    'Other': {
+      'icon': Icons.category,
+      'color': Colors.grey.withOpacity(0.7),
+    },
   };
 
   @override
@@ -244,7 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         color: Colors.white, fontSize: 18),
                                   ),
                                   Text(
-                                    'Rp ${accountBalance.toStringAsFixed(1)}',
+                                    'Rp. ${accountBalance.toStringAsFixed(1)}',
                                     style: GoogleFonts.inter(
                                         color: const Color(0xFFe9eff4),
                                         fontSize: 32,
@@ -437,6 +443,9 @@ class _HomeScreenState extends State<HomeScreen> {
           itemBuilder: (context, index) {
             final transaction = transactions[index];
             final isIncome = transaction['type'] == 'income';
+            final amountText = isIncome
+                ? '+Rp. ${transaction['amount'].toStringAsFixed(0)}'
+                : '-Rp. ${transaction['amount'].toStringAsFixed(0)}';
             if (selectedCategory == null ||
                 selectedCategory == 'All' ||
                 selectedCategory == transaction['category']) {
@@ -454,7 +463,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   subtitle: Text(transaction['time'].toString(),
                       style: GoogleFonts.inter(fontSize: 14)),
                   trailing: Text(
-                    'Rp ${transaction['amount'].toStringAsFixed(0)}',
+                    amountText,
                     style: TextStyle(
                         color: isIncome ? Colors.green : Colors.red,
                         fontSize: 16,
