@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_moneymanager/report.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'login.dart';
 
@@ -24,21 +23,45 @@ class _HomeScreenState extends State<HomeScreen> {
   String? selectedCategory;
 
   final Map<String, Map<String, dynamic>> categoriesIncome = {
-    'Salary': {'icon': Icons.money, 'color': Colors.blue},
-    'Freelance': {'icon': Icons.laptop_mac, 'color': Colors.green},
-    'Investments': {'icon': Icons.show_chart, 'color': Colors.orange},
-    'Gifts': {'icon': Icons.card_giftcard, 'color': Colors.purple},
-    'Rent': {'icon': Icons.home, 'color': Colors.brown},
-    'Other': {'icon': Icons.category, 'color': Colors.grey},
+    'Salary': {
+      'icon': Icons.money,
+      'color': Colors.blue.withOpacity(0.7),
+    },
+    'Freelance': {
+      'icon': Icons.laptop_mac,
+      'color': Colors.green.withOpacity(0.7)
+    },
+    'Investments': {
+      'icon': Icons.show_chart,
+      'color': Colors.orange.withOpacity(0.7)
+    },
+    'Gifts': {
+      'icon': Icons.card_giftcard,
+      'color': Colors.purple.withOpacity(0.7)
+    },
+    'Rent': {'icon': Icons.home, 'color': Colors.brown.withOpacity(0.7)},
+    'Other': {'icon': Icons.category, 'color': Colors.grey.withOpacity(0.7)},
   };
 
   final Map<String, Map<String, dynamic>> categoriesExpense = {
-    'Food': {'icon': Icons.fastfood, 'color': Colors.red},
-    'Transport': {'icon': Icons.directions_car, 'color': Colors.blue},
-    'Shopping': {'icon': Icons.shopping_cart, 'color': Colors.green},
-    'Entertainment': {'icon': Icons.movie, 'color': Colors.purple},
-    'Bills': {'icon': Icons.receipt, 'color': Colors.orange},
-    'Other': {'icon': Icons.category, 'color': Colors.grey},
+    'Food': {
+      'icon': Icons.fastfood,
+      'color': Colors.red.withOpacity(0.7),
+    },
+    'Transport': {
+      'icon': Icons.directions_car,
+      'color': Colors.blue.withOpacity(0.7)
+    },
+    'Shopping': {
+      'icon': Icons.shopping_cart,
+      'color': Colors.green.withOpacity(0.7)
+    },
+    'Entertainment': {
+      'icon': Icons.movie,
+      'color': Colors.purple.withOpacity(0.7)
+    },
+    'Bills': {'icon': Icons.receipt, 'color': Colors.orange.withOpacity(0.7)},
+    'Other': {'icon': Icons.category, 'color': Colors.grey.withOpacity(0.7)},
   };
 
   @override
@@ -158,192 +181,211 @@ class _HomeScreenState extends State<HomeScreen> {
     String userName = currentUser?.displayName ?? "User";
 
     return Scaffold(
-      backgroundColor: Color.fromARGB(251, 253, 254, 255),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        const CircleAvatar(
-                          backgroundImage:
-                              NetworkImage('https://via.placeholder.com/150'),
-                        ),
-                        SizedBox(width: 8.0),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Hi $userName',
-                              style: GoogleFonts.inter(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              'Welcome back!',
-                              style: GoogleFonts.inter(
-                                  fontSize: 18, fontWeight: FontWeight.normal),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 20.0),
-                    Card(
-                      color: Color(0xFF38648c),
-                      elevation: 4.0,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Stack(
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Total Balance',
-                                  style: GoogleFonts.inter(
-                                      color: Colors.white, fontSize: 18),
-                                ),
-                                Text(
-                                  'Rp ${accountBalance.toStringAsFixed(1)}',
-                                  style: GoogleFonts.inter(
-                                      color: const Color(0xFFe9eff4),
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                SizedBox(height: 16.0),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            FaIcon(FontAwesomeIcons.arrowDown,
-                                                color: const Color(0xFFe9eff4)),
-                                            SizedBox(width: 8.0),
-                                            Text(
-                                              'Income',
-                                              style: GoogleFonts.inter(
-                                                  color:
-                                                      const Color(0xFFe9eff4),
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 4.0),
-                                        Text(
-                                          'Rp $totalIncome',
-                                          style: GoogleFonts.inter(
-                                              fontSize: 14,
-                                              color: const Color(0xFFe9eff4)),
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            FaIcon(FontAwesomeIcons.arrowUp,
-                                                color: const Color(0xFFe9eff4)),
-                                            SizedBox(width: 8.0),
-                                            Text(
-                                              'Expenses',
-                                              style: GoogleFonts.inter(
-                                                  color:
-                                                      const Color(0xFFe9eff4),
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 4.0),
-                                        Text(
-                                          'Rp $totalExpenses',
-                                          style: GoogleFonts.inter(
-                                              fontSize: 14,
-                                              color: const Color(0xFFe9eff4)),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Positioned(
-                              top: 0,
-                              right: 0,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => ReportPage()),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFFe9eff4),
-                                  foregroundColor: Color(0xFF38648c),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 12.0, vertical: 8.0),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                ),
-                                child: Text(
-                                  'View Report',
-                                  style: GoogleFonts.inter(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 16.0),
-                    Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF38648c), Color(0xFFe9eff4)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Row(
                         children: [
-                          Text('Categories',
-                              style: GoogleFonts.inter(
-                                  fontSize: 18, fontWeight: FontWeight.bold)),
-                          _buildCategoryButtons(),
+                          const CircleAvatar(
+                            backgroundImage:
+                                NetworkImage('https://via.placeholder.com/150'),
+                          ),
+                          SizedBox(width: 8.0),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Hi $userName',
+                                style: GoogleFonts.inter(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
+                              ),
+                              Text(
+                                'Welcome back!',
+                                style: GoogleFonts.inter(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.normal,
+                                    color: Colors.white),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
-                    ),
-                    SizedBox(height: 16.0),
-                    _buildRecentTransactions(),
-                  ],
+                      SizedBox(height: 20.0),
+                      Card(
+                        color: Color(0xFF38648c),
+                        elevation: 4.0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16.0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Stack(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Total Balance',
+                                    style: GoogleFonts.inter(
+                                        color: Colors.white, fontSize: 18),
+                                  ),
+                                  Text(
+                                    'Rp ${accountBalance.toStringAsFixed(1)}',
+                                    style: GoogleFonts.inter(
+                                        color: const Color(0xFFe9eff4),
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(height: 16.0),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              FaIcon(FontAwesomeIcons.arrowDown,
+                                                  color:
+                                                      const Color(0xFFe9eff4)),
+                                              SizedBox(width: 8.0),
+                                              Text(
+                                                'Income',
+                                                style: GoogleFonts.inter(
+                                                    color:
+                                                        const Color(0xFFe9eff4),
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: 4.0),
+                                          Text(
+                                            'Rp $totalIncome',
+                                            style: GoogleFonts.inter(
+                                                fontSize: 14,
+                                                color: const Color(0xFFe9eff4)),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              FaIcon(FontAwesomeIcons.arrowUp,
+                                                  color:
+                                                      const Color(0xFFe9eff4)),
+                                              SizedBox(width: 8.0),
+                                              Text(
+                                                'Expenses',
+                                                style: GoogleFonts.inter(
+                                                    color:
+                                                        const Color(0xFFe9eff4),
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: 4.0),
+                                          Text(
+                                            'Rp $totalExpenses',
+                                            style: GoogleFonts.inter(
+                                                fontSize: 14,
+                                                color: const Color(0xFFe9eff4)),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              Positioned(
+                                top: 0,
+                                right: 0,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ReportPage()),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFFe9eff4),
+                                    foregroundColor: Color(0xFF38648c),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 12.0, vertical: 8.0),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'View Report',
+                                    style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16.0),
+                      Container(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Categories',
+                                style: GoogleFonts.inter(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white)),
+                            _buildCategoryButtons(),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 16.0),
+                      _buildRecentTransactions(),
+                    ],
+                  ),
                 ),
               ),
-            ),
+      ),
     );
   }
 
   Widget _buildCategoryButtons() {
     List<Widget> buttons = [
-      _buildCategoryButton(null, Icons.category, Color(0xFF38648c)),
+      _buildCategoryButton(null, Icons.category, Colors.white.withOpacity(0.7)),
     ];
 
     categoriesExpense.forEach((category, data) {
-      buttons
-          .add(_buildCategoryButton(category, data['icon'], Color(0xFF38648c)));
+      buttons.add(_buildCategoryButton(category, data['icon'], data['color']));
     });
 
     categoriesIncome.forEach((category, data) {
-      buttons
-          .add(_buildCategoryButton(category, data['icon'], Color(0xFF38648c)));
+      buttons.add(_buildCategoryButton(category, data['icon'], data['color']));
     });
 
     return SingleChildScrollView(
@@ -366,134 +408,14 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       },
       style: ElevatedButton.styleFrom(
-        padding: EdgeInsets.all(8.0), // Adjust padding here
+        padding: EdgeInsets.all(8.0),
         backgroundColor:
             selectedCategory == category ? Color(0xFF71242c) : buttonColor,
         shape: CircleBorder(),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(12.0), // Adjust inner padding here
-        child: Icon(iconData, color: Colors.white),
-      ),
-    );
-  }
-
-  Widget _buildSpendFrequencyChart() {
-    Map<int, double> incomeTransactions = {};
-    Map<int, double> expenseTransactions = {};
-
-    // Initialize the maps with zero values for each day of the month
-    for (int day = 1; day <= 30; day++) {
-      incomeTransactions[day] = 0;
-      expenseTransactions[day] = 0;
-    }
-
-    for (var transaction in transactions) {
-      String date = transaction['time'];
-      int day = int.parse(date.split('-')[0]);
-      if (transaction['type'] == 'income') {
-        incomeTransactions[day] =
-            (incomeTransactions[day] ?? 0) + transaction['amount'];
-      } else if (transaction['type'] == 'expense') {
-        expenseTransactions[day] =
-            (expenseTransactions[day] ?? 0) + transaction['amount'];
-      }
-    }
-
-    List<FlSpot> incomeSpots = incomeTransactions.entries
-        .map((entry) => FlSpot(entry.key.toDouble(), entry.value))
-        .toList();
-
-    List<FlSpot> expenseSpots = expenseTransactions.entries
-        .map((entry) => FlSpot(entry.key.toDouble(), entry.value))
-        .toList();
-
-    return Container(
-      height: 300, // Increased height for better y-axis visibility
-      padding: const EdgeInsets.only(bottom: 18.0),
-      child: LineChart(
-        LineChartData(
-          minX: 1,
-          maxX: 30,
-          minY: 0,
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                interval: 100, // Adjust interval for y-axis titles
-                getTitlesWidget: (value, meta) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: Text(value.toString(),
-                        style: TextStyle(color: Colors.black, fontSize: 10)),
-                  );
-                },
-              ),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(value.toInt().toString(),
-                        style: TextStyle(color: Colors.black, fontSize: 10)),
-                  );
-                },
-              ),
-            ),
-            topTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            rightTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-          ),
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: true,
-            horizontalInterval:
-                100, // Adjust interval for horizontal grid lines
-            getDrawingHorizontalLine: (value) {
-              return FlLine(
-                color: Colors.grey.withOpacity(0.3),
-                strokeWidth: 1,
-              );
-            },
-            getDrawingVerticalLine: (value) {
-              return FlLine(
-                color: Colors.grey.withOpacity(0.3),
-                strokeWidth: 1,
-              );
-            },
-          ),
-          borderData: FlBorderData(
-            show: true,
-            border: Border.all(color: Colors.grey.withOpacity(0.5), width: 1),
-          ),
-          lineBarsData: [
-            LineChartBarData(
-              spots: incomeSpots,
-              isCurved: true,
-              color: Colors.green,
-              barWidth: 4,
-              belowBarData: BarAreaData(
-                show: true,
-                color: Colors.green.withOpacity(0.3),
-              ),
-            ),
-            LineChartBarData(
-              spots: expenseSpots,
-              isCurved: true,
-              color: Colors.red,
-              barWidth: 4,
-              belowBarData: BarAreaData(
-                show: true,
-                color: Colors.red.withOpacity(0.3),
-              ),
-            ),
-          ],
-        ),
+        padding: const EdgeInsets.all(12.0),
+        child: Icon(iconData, color: Colors.white.withOpacity(0.8)),
       ),
     );
   }
@@ -503,8 +425,10 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Recent Transactions',
-            style:
-                GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
+            style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white)),
         SizedBox(height: 16.0),
         ListView.builder(
           shrinkWrap: true,
@@ -516,19 +440,30 @@ class _HomeScreenState extends State<HomeScreen> {
             if (selectedCategory == null ||
                 selectedCategory == 'All' ||
                 selectedCategory == transaction['category']) {
-              return ListTile(
-                leading: Icon(transaction['icon'], color: transaction['color']),
-                title: Text(transaction['category']),
-                subtitle: Text(transaction['time'].toString()),
-                trailing: Text(
-                  'Rp ${transaction['amount'].toStringAsFixed(0)}',
-                  style: TextStyle(
-                      color: isIncome ? Colors.green : Colors.red,
-                      fontSize: 16),
+              return Card(
+                elevation: 2.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: ListTile(
+                  leading:
+                      Icon(transaction['icon'], color: transaction['color']),
+                  title: Text(transaction['category'],
+                      style: GoogleFonts.inter(
+                          fontSize: 16, fontWeight: FontWeight.bold)),
+                  subtitle: Text(transaction['time'].toString(),
+                      style: GoogleFonts.inter(fontSize: 14)),
+                  trailing: Text(
+                    'Rp ${transaction['amount'].toStringAsFixed(0)}',
+                    style: TextStyle(
+                        color: isIncome ? Colors.green : Colors.red,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold),
+                  ),
                 ),
               );
             } else {
-              return Container(); // Empty container if transaction doesn't match selected category
+              return Container();
             }
           },
         ),

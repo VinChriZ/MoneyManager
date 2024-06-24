@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'main.dart';
 
 void main() async {
@@ -39,6 +40,7 @@ class IncomeData {
 
 class _IncomePageState extends State<IncomePage> {
   int _currentMonth = DateTime.now().month;
+  int _currentYear = DateTime.now().year;
   final List<String> monthNames = [
     'January',
     'February',
@@ -62,6 +64,17 @@ class _IncomePageState extends State<IncomePage> {
   void initState() {
     super.initState();
     _fetchIncomes();
+  }
+
+  DateTime parseDate(String dateStr) {
+    List<String> parts = dateStr.split('-');
+    if (parts.length == 3) {
+      int day = int.parse(parts[0]);
+      int month = int.parse(parts[1]);
+      int year = int.parse(parts[2]);
+      return DateTime(year, month, day);
+    }
+    throw FormatException("Invalid date format");
   }
 
   void _fetchIncomes() async {
@@ -90,8 +103,12 @@ class _IncomePageState extends State<IncomePage> {
     }).toList();
 
     setState(() {
-      incomes = fetchedIncomes;
-      totalIncome = fetchedIncomes.fold(
+      incomes = fetchedIncomes.where((income) {
+        DateTime incomeDate = parseDate(income['time']);
+        return incomeDate.month == _currentMonth &&
+            incomeDate.year == _currentYear;
+      }).toList();
+      totalIncome = incomes.fold(
           0.0, (sum, item) => sum + double.parse(item['amount'].substring(2)));
       _updateChartData();
     });
@@ -155,17 +172,14 @@ class _IncomePageState extends State<IncomePage> {
     });
   }
 
-  void _updateChartDataForMonth(int month) {
+  void _updateChartDataForMonth(int month, int year) {
     List<FlSpot> newData =
         List.generate(31, (index) => FlSpot(index.toDouble(), 0));
 
     for (var income in incomes) {
-      var day = int.tryParse(
-          income['time'].split('-')[0].replaceAll(RegExp(r'\D'), ''));
-      var incomeMonth = int.tryParse(
-          income['time'].split('-')[1].replaceAll(RegExp(r'\D'), ''));
-
-      if (day != null && day >= 1 && day <= 31 && incomeMonth == month) {
+      DateTime incomeDate = parseDate(income['time']);
+      if (incomeDate.month == month && incomeDate.year == year) {
+        int day = incomeDate.day;
         newData[day - 1] = FlSpot(day.toDouble(),
             newData[day - 1].y + double.parse(income['amount'].substring(2)));
       }
@@ -173,6 +187,8 @@ class _IncomePageState extends State<IncomePage> {
 
     setState(() {
       data = newData;
+      totalIncome = incomes.fold(
+          0.0, (sum, item) => sum + double.parse(item['amount'].substring(2)));
     });
   }
 
@@ -182,8 +198,9 @@ class _IncomePageState extends State<IncomePage> {
         _currentMonth--;
       } else {
         _currentMonth = 12;
+        _currentYear--;
       }
-      _updateChartDataForMonth(_currentMonth);
+      _fetchIncomes();
     });
   }
 
@@ -193,8 +210,9 @@ class _IncomePageState extends State<IncomePage> {
         _currentMonth++;
       } else {
         _currentMonth = 1;
+        _currentYear++;
       }
-      _updateChartDataForMonth(_currentMonth);
+      _fetchIncomes();
     });
   }
 
@@ -207,12 +225,14 @@ class _IncomePageState extends State<IncomePage> {
     IconData icon = Icons.money;
     Color color = Colors.blue;
 
+    TextEditingController amountController = TextEditingController();
+    TextEditingController timeController = TextEditingController(text: time);
+
     final Map<String, Map<String, dynamic>> categories = {
       'Salary': {'icon': Icons.money, 'color': Colors.blue},
       'Freelance': {'icon': Icons.laptop_mac, 'color': Colors.green},
       'Investments': {'icon': Icons.show_chart, 'color': Colors.orange},
       'Gifts': {'icon': Icons.card_giftcard, 'color': Colors.purple},
-      'Rent': {'icon': Icons.home, 'color': Colors.brown},
       'Other': {'icon': Icons.category, 'color': Colors.grey},
     };
 
@@ -226,6 +246,7 @@ class _IncomePageState extends State<IncomePage> {
       if (picked != null && picked != DateTime.now()) {
         setState(() {
           time = "${picked.day}-${picked.month}-${picked.year}";
+          timeController.text = time; // Update the controller's text
         });
       }
     }
@@ -233,102 +254,170 @@ class _IncomePageState extends State<IncomePage> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text('Add Income'),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DropdownButtonFormField<String>(
-                    value: category,
-                    items: categories.keys.map((String category) {
-                      return DropdownMenuItem<String>(
-                        value: category,
-                        child: Text(category),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        category = value!;
-                        icon = categories[category]!['icon'] as IconData;
-                        color = categories[category]!['color'] as Color;
-                      });
-                    },
-                    decoration: InputDecoration(labelText: 'Category'),
-                  ),
-                  if (category == 'Other')
-                    TextField(
-                      decoration: InputDecoration(labelText: 'Custom Category'),
-                      onChanged: (value) {
-                        customCategory = value;
-                      },
-                    ),
-                  TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Amount',
-                      suffixText: '\$',
-                    ),
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      try {
-                        amount = double.parse(value);
-                      } catch (e) {
-                        amount = 0.0;
-                      }
-                    },
-                  ),
-                  TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Date',
-                    ),
-                    controller: TextEditingController(text: time),
-                    readOnly: true,
-                    onTap: () => _selectDate(context, setState),
-                  ),
-                ],
-              );
-            },
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
+          child: Container(
+            padding: EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20.0),
             ),
-            TextButton(
-              onPressed: () {
-                if ((category != 'Other' ||
-                        (category == 'Other' && customCategory.isNotEmpty)) &&
-                    time.isNotEmpty &&
-                    amount > 0) {
-                  _addIncome(category == 'Other' ? customCategory : category,
-                      amount, time, icon, color);
-                  Navigator.of(context).pop();
-                } else {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text('Invalid Input'),
-                        content: Text('Please fill in all the fields.'),
-                        actions: [
+            child: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Add Income',
+                        style: TextStyle(
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
+                      ),
+                      SizedBox(height: 20.0),
+                      DropdownButtonFormField<String>(
+                        value: category,
+                        items: categories.keys.map((String category) {
+                          return DropdownMenuItem<String>(
+                            value: category,
+                            child: Row(
+                              children: [
+                                Icon(categories[category]!['icon'] as IconData,
+                                    color: categories[category]!['color']
+                                        as Color),
+                                SizedBox(width: 10.0),
+                                Text(category),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            category = value!;
+                            icon = categories[category]!['icon'] as IconData;
+                            color = categories[category]!['color'] as Color;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Category',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      if (category == 'Other')
+                        Column(
+                          children: [
+                            SizedBox(height: 10.0),
+                            TextField(
+                              decoration: InputDecoration(
+                                labelText: 'Custom Category',
+                                border: OutlineInputBorder(),
+                              ),
+                              onChanged: (value) {
+                                customCategory = value;
+                              },
+                            ),
+                          ],
+                        ),
+                      SizedBox(height: 10.0),
+                      TextField(
+                        controller: amountController,
+                        decoration: InputDecoration(
+                          labelText: 'Amount',
+                          border: OutlineInputBorder(),
+                          suffixText: '\$',
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                          try {
+                            amount = double.parse(value);
+                          } catch (e) {
+                            amount = 0.0;
+                          }
+                        },
+                      ),
+                      SizedBox(height: 10.0),
+                      TextField(
+                        controller: timeController,
+                        decoration: InputDecoration(
+                          labelText: 'Date',
+                          border: OutlineInputBorder(),
+                        ),
+                        readOnly: true,
+                        onTap: () => _selectDate(context, setState),
+                      ),
+                      SizedBox(height: 20.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
                           TextButton(
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
-                            child: Text('OK'),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                color: Colors.red,
+                              ),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              if ((category != 'Other' ||
+                                      (category == 'Other' &&
+                                          customCategory.isNotEmpty)) &&
+                                  time.isNotEmpty &&
+                                  amount > 0) {
+                                _addIncome(
+                                    category == 'Other'
+                                        ? customCategory
+                                        : category,
+                                    amount,
+                                    time,
+                                    icon,
+                                    color);
+                                Navigator.of(context).pop();
+                              } else {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text('Invalid Input'),
+                                      content: Text(
+                                          'Please fill in all the fields.'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text('OK'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              }
+                            },
+                            child: Text('Add'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                            ),
                           ),
                         ],
-                      );
-                    },
-                  );
-                }
+                      ),
+                    ],
+                  ),
+                );
               },
-              child: Text('Add'),
             ),
-          ],
+          ),
         );
       },
     );
@@ -339,39 +428,53 @@ class _IncomePageState extends State<IncomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Income'),
+        backgroundColor: Colors.green,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.arrow_back),
-                  onPressed: _showPreviousMonth,
-                ),
-                Text(
-                  '${monthNames[_currentMonth - 1]}',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  icon: Icon(Icons.arrow_forward),
-                  onPressed: _showNextMonth,
-                ),
-              ],
-            ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.green.shade200, Colors.green.shade600],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: _showPreviousMonth,
+                  ),
+                  Text(
+                    '${monthNames[_currentMonth - 1]} $_currentYear',
+                    style: GoogleFonts.inter(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.arrow_forward, color: Colors.white),
+                    onPressed: _showNextMonth,
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Card(
-                color: Colors.green,
+                color: Colors.green.shade700,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
+                elevation: 4.0,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       FaIcon(
                         FontAwesomeIcons.coins,
@@ -379,65 +482,90 @@ class _IncomePageState extends State<IncomePage> {
                       ),
                       Text(
                         'Total Income: \$${totalIncome.toStringAsFixed(2)}',
-                        style: TextStyle(
+                        style: GoogleFonts.inter(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.white),
                       ),
-                      SizedBox(), // Add any other widget if needed
                     ],
                   ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: LineChart(
-                LineChartData(
-                  gridData: FlGridData(show: false),
-                  titlesData: FlTitlesData(show: false),
-                  borderData: FlBorderData(show: true),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: data,
-                      isCurved: false,
-                      color: Colors.green,
-                      barWidth: 3,
-                      dotData: FlDotData(show: true),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        color: Colors.green.withOpacity(0.3),
+            SizedBox(height: 16.0),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                  elevation: 4.0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: LineChart(
+                      LineChartData(
+                        gridData: FlGridData(show: false),
+                        titlesData: FlTitlesData(show: false),
+                        borderData: FlBorderData(show: true),
+                        lineBarsData: [
+                          LineChartBarData(
+                            spots: data,
+                            isCurved: true,
+                            color: Colors.green,
+                            barWidth: 4,
+                            dotData: FlDotData(show: true),
+                            belowBarData: BarAreaData(
+                              show: true,
+                              color: Colors.green.withOpacity(0.3),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: incomes.length,
-              itemBuilder: (context, index) {
-                var income = incomes[index];
-                return ListTile(
-                  leading: FaIcon(
-                    income['icon'],
-                    color: income['color'],
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16.0),
                   ),
-                  title: Text(income['category']),
-                  subtitle: Text(income['time']),
-                  trailing: Text(income['amount']),
-                );
-              },
+                  elevation: 4.0,
+                  child: ListView.builder(
+                    itemCount: incomes.length,
+                    itemBuilder: (context, index) {
+                      var income = incomes[index];
+                      return ListTile(
+                        leading: FaIcon(
+                          income['icon'],
+                          color: income['color'],
+                        ),
+                        title: Text(income['category'],
+                            style: GoogleFonts.inter(fontSize: 16)),
+                        subtitle: Text(income['time'],
+                            style: GoogleFonts.inter(fontSize: 14)),
+                        trailing: Text(
+                          income['amount'],
+                          style: GoogleFonts.inter(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddIncomeDialog,
         child: Icon(Icons.add),
+        backgroundColor: Colors.green,
       ),
     );
   }

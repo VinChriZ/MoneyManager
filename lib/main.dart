@@ -78,7 +78,7 @@ class _MainState extends State<Main> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.purple,
+        selectedItemColor: Color.fromARGB(255, 214, 154, 0),
         unselectedItemColor: Colors.black,
         onTap: _onTap,
       ),
@@ -86,7 +86,7 @@ class _MainState extends State<Main> {
         icon: Icons.add,
         iconTheme: IconThemeData(color: Colors.white),
         activeIcon: Icons.close,
-        backgroundColor: Colors.purple,
+        backgroundColor: Color.fromARGB(255, 214, 154, 0),
         overlayColor: Colors.white,
         overlayOpacity: 0.5,
         children: [
