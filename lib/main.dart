@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       create: (context) => UserData(), // Provide UserData instance
       child: MaterialApp(
           // home: AuthPage(),
-          home: ExpensePage()),
+          home: SplashScreen()),
     );
   }
 }
