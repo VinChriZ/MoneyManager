@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_moneymanager/Profile/profile.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'data_user.dart';
@@ -48,7 +49,8 @@ class _EditProfileState extends State<EditProfile> {
       );
 
       // Update name in the UserData provider
-      Provider.of<UserData>(context, listen: false).setName(nameController.text);
+      Provider.of<UserData>(context, listen: false)
+          .setName(nameController.text);
 
       // Show success dialog
       showDialog(
@@ -61,6 +63,9 @@ class _EditProfileState extends State<EditProfile> {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => ProfileCard()),
+                  );
                 },
                 child: Text('OK'),
               ),
@@ -90,76 +95,124 @@ class _EditProfileState extends State<EditProfile> {
     }
   }
 
-  @override
+
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Profile'),
+        title:
+            Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Color.fromARGB(255, 109, 152, 217), // Blue color
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 20.0),
-            const Icon(
-              Icons.person,
-              size: 100,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 20.0),
-            const Text(
-              'Edit Profile',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            const Text(
-              'Please update your details',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16.0,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 40.0),
-
-            // Name TextField
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(
-                labelText: 'Name',
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Color.fromARGB(255, 109, 152, 217), // Blue color
+        child: Center(
+          child: Stack(
+            alignment: Alignment.topCenter,
+            children: <Widget>[
+              Positioned(
+                top: 50,
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.transparent,
+                  child: Icon(
+                    Icons.person,
+                    size: 80,
+                    color: Colors.blue,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16.0),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                height: MediaQuery.of(context).size.height * 0.85,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 20.0),
+                      const Icon(
+                        Icons.person,
+                        size: 100,
+                        color: Colors.blue,
+                      ),
+                      const SizedBox(height: 20.0),
+                      const Text(
+                        'Edit Profile',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10.0),
+                      const Text(
+                        'Please update your details',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 40.0),
 
-            // Save Button
-            MaterialButton(
-              minWidth: double.infinity,
-              height: 60,
-              onPressed: () {
-                _saveProfile(context);
-              },
-              color: Color.fromARGB(255, 112, 69, 222),
-              textColor: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: 12.0),
-              shape: RoundedRectangleBorder(
-                side: BorderSide(color: Colors.black),
-                borderRadius: BorderRadius.circular(15.0),
+                      // Name TextField
+                      TextField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                          labelText: 'Name',
+                          prefixIcon: Icon(Icons.person),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+
+                      // // Bio TextField
+                      // TextField(
+                      //   controller: bioController,
+                      //   decoration: InputDecoration(
+                      //     labelText: 'Bio',
+                      //     prefixIcon: Icon(Icons.description),
+                      //     border: OutlineInputBorder(
+                      //       borderRadius: BorderRadius.circular(12.0),
+                      //     ),
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 16.0),
+
+                      // Save Button
+                      MaterialButton(
+                        minWidth: double.infinity,
+                        height: 60,
+                        onPressed: () {
+                          _saveProfile(context);
+                        },
+                        color: Color.fromARGB(255, 112, 69, 222),
+                        textColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 12.0),
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(color: Colors.black),
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: const Text(
+                          'Save',
+                          style: TextStyle(fontSize: 18.0),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              child: const Text(
-                'Save',
-                style: TextStyle(fontSize: 18.0),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

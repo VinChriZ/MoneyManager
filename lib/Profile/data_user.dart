@@ -1,16 +1,17 @@
-import '../home.dart';
 import 'package:flutter/material.dart';
 
 class UserData extends ChangeNotifier {
   String documentId = '';
   String _name = '';
   String _email = '';
+  String _bio = '';
   double _totalIncome = 0.0; 
   double _totalExpenses = 0.0;
   
   String get documentID => documentId;
   String get name => _name;
   String get email => _email;
+  String get bio => _bio;
   double get totalIncome => _totalIncome;
   double get totalExpenses => _totalExpenses;
   
@@ -29,6 +30,11 @@ class UserData extends ChangeNotifier {
 
   void setName(String name) {
     _name = name;
+    notifyListeners();
+  }
+
+  void setBio(String bio) {
+    _bio = bio;
     notifyListeners();
   }
 

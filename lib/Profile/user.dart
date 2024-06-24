@@ -2,12 +2,14 @@ class UserObject {
   String uid;
   String name;
   String email;
+  String bio;
 
   UserObject(
     {
       required this.uid, 
       required this.name, 
-      required this.email, 
+      required this.email,
+      this.bio = "" 
     }
   );
 

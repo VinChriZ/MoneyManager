@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_moneymanager/Profile/profile.dart';
 import 'package:flutter_moneymanager/auth_page.dart';
 import 'package:flutter_moneymanager/home.dart';
 import 'package:flutter_moneymanager/login.dart';
-import 'package:flutter_moneymanager/Profile/profile.dart';
 import 'package:flutter_moneymanager/income.dart';
 import 'package:flutter_moneymanager/expense.dart';
 import 'package:flutter_moneymanager/report.dart';
@@ -48,7 +48,7 @@ class _MainState extends State<Main> {
     super.initState();
     _pages = [
       HomeScreen(documentID: widget.documentID),
-      ProfilePage(),
+      ProfileCard(),
       ReportPage()
     ];
   }
