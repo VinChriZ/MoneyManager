@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'main.dart';
 
 void main() async {
@@ -610,8 +611,8 @@ class _IncomePageState extends State<IncomePage> {
                               minWidth: double.infinity,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
-                                  side:
-                                      BorderSide(color: Colors.green, width: 2)),
+                                  side: BorderSide(
+                                      color: Colors.green, width: 2)),
                               height: 50,
                               child: Text("Cancel",
                                   style: GoogleFonts.inter(
@@ -711,7 +712,46 @@ class _IncomePageState extends State<IncomePage> {
                     child: LineChart(
                       LineChartData(
                         gridData: FlGridData(show: false),
-                        titlesData: FlTitlesData(show: false),
+                        titlesData: FlTitlesData(
+                          topTitles: AxisTitles(
+                            axisNameWidget: Text(
+                              "Income Chart",
+                              style: GoogleFonts.inter(),
+                            ),
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 10,
+                            ),
+                          ),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 10
+                            ),
+                          ),
+                          rightTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: false,
+                              getTitlesWidget: (value, meta) {
+                                if (value == 0) {
+                                  return Text('0');
+                                } else if (value == totalIncome / 2) {
+                                  return Text(
+                                      (totalIncome / 2).toStringAsFixed(0));
+                                } else if (value == totalIncome) {
+                                  return Text((totalIncome).toStringAsFixed(0));
+                                }
+                                return Text('');
+                              },
+                            ),
+                          ),
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 40
+                            ),
+                          ),
+                        ),
                         borderData: FlBorderData(show: true),
                         lineBarsData: [
                           LineChartBarData(
@@ -719,7 +759,7 @@ class _IncomePageState extends State<IncomePage> {
                             isCurved: true,
                             color: Colors.green,
                             barWidth: 4,
-                            dotData: FlDotData(show: true),
+                            dotData: FlDotData(show: false),
                             belowBarData: BarAreaData(
                               show: true,
                               color: Colors.green.withOpacity(0.3),
@@ -779,7 +819,10 @@ class _IncomePageState extends State<IncomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddIncomeDialog,
-        child: Icon(Icons.add,color: Colors.white,),
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
         backgroundColor: Colors.green,
       ),
     );

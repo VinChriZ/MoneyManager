@@ -710,18 +710,53 @@ class _ExpensePageState extends State<ExpensePage> {
                     child: LineChart(
                       LineChartData(
                         gridData: FlGridData(show: false),
-                        titlesData: FlTitlesData(show: false),
+                        titlesData: FlTitlesData(
+                          topTitles: AxisTitles(
+                            axisNameWidget: Text(
+                              "Expense Chart",
+                              style: GoogleFonts.inter(),
+                            ),
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 10,
+                            ),
+                          ),
+                          bottomTitles: AxisTitles(
+                            sideTitles:
+                                SideTitles(showTitles: true, reservedSize: 10),
+                          ),
+                          rightTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: false,
+                              getTitlesWidget: (value, meta) {
+                                if (value == 0) {
+                                  return Text('0');
+                                } else if (value == totalExpense / 2) {
+                                  return Text(
+                                      (totalExpense / 2).toStringAsFixed(0));
+                                } else if (value == totalExpense) {
+                                  return Text(totalExpense.toStringAsFixed(0));
+                                }
+                                return Text('');
+                              },
+                            ),
+                          ),
+                          leftTitles: AxisTitles(
+                            sideTitles:
+                                SideTitles(showTitles: true, reservedSize: 40),
+                          ),
+                        ),
                         borderData: FlBorderData(show: true),
                         lineBarsData: [
                           LineChartBarData(
                             spots: data,
-                            isCurved: false,
-                            color: Colors.red,
+                            isCurved: true,
+                            color: Colors.green,
                             barWidth: 4,
-                            dotData: FlDotData(show: true),
+                            dotData: FlDotData(show: false),
                             belowBarData: BarAreaData(
                               show: true,
-                              color: Colors.red.withOpacity(0.3),
+                              color: Colors.green.withOpacity(0.3),
                             ),
                           ),
                         ],
@@ -778,7 +813,10 @@ class _ExpensePageState extends State<ExpensePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddExpenseDialog,
-        child: Icon(Icons.add,color: Colors.white,),
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
         backgroundColor: Colors.red,
       ),
     );
