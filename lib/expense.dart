@@ -272,176 +272,357 @@ class _ExpensePageState extends State<ExpensePage> {
       }
     }
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: Container(
-            padding: EdgeInsets.all(20.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            child: StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-                return SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Add Expense',
-                        style: GoogleFonts.inter(
-                          fontSize: 24.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                        ),
-                      ),
-                      SizedBox(height: 20.0),
-                      DropdownButtonFormField<String>(
-                        value: category,
-                        items: categories.keys.map((String category) {
-                          return DropdownMenuItem<String>(
-                            value: category,
-                            child: Row(
-                              children: [
-                                Icon(categories[category]!['icon'] as IconData,
-                                    color: categories[category]!['color']
-                                        as Color),
-                                SizedBox(width: 10.0),
-                                Text(category),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            category = value!;
-                            icon = categories[category]!['icon'] as IconData;
-                            color = categories[category]!['color'] as Color;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Category',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      if (category == 'Other')
-                        Column(
-                          children: [
-                            SizedBox(height: 10.0),
-                            TextField(
-                              decoration: InputDecoration(
-                                labelText: 'Custom Category',
-                                border: OutlineInputBorder(),
+    // showDialog(
+    //   context: context,
+    //   builder: (context) {
+    //     return Dialog(
+    //       shape: RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.circular(20.0),
+    //       ),
+    //       child: Container(
+    //         padding: EdgeInsets.all(20.0),
+    //         decoration: BoxDecoration(
+    //           color: Colors.white,
+    //           borderRadius: BorderRadius.circular(20.0),
+    //         ),
+    //         child: StatefulBuilder(
+    //           builder: (BuildContext context, StateSetter setState) {
+    //             return SingleChildScrollView(
+    //               child: Column(
+    //                 mainAxisSize: MainAxisSize.min,
+    //                 children: [
+    //                   Text(
+    //                     'Add Expense',
+    //                     style: GoogleFonts.inter(
+    //                       fontSize: 24.0,
+    //                       fontWeight: FontWeight.bold,
+    //                       color: Colors.red,
+    //                     ),
+    //                   ),
+    //                   SizedBox(height: 20.0),
+    //                   DropdownButtonFormField<String>(
+    //                     value: category,
+    //                     items: categories.keys.map((String category) {
+    //                       return DropdownMenuItem<String>(
+    //                         value: category,
+    //                         child: Row(
+    //                           children: [
+    //                             Icon(categories[category]!['icon'] as IconData,
+    //                                 color: categories[category]!['color']
+    //                                     as Color),
+    //                             SizedBox(width: 10.0),
+    //                             Text(category),
+    //                           ],
+    //                         ),
+    //                       );
+    //                     }).toList(),
+    //                     onChanged: (value) {
+    //                       setState(() {
+    //                         category = value!;
+    //                         icon = categories[category]!['icon'] as IconData;
+    //                         color = categories[category]!['color'] as Color;
+    //                       });
+    //                     },
+    //                     decoration: InputDecoration(
+    //                       labelText: 'Category',
+    //                       border: OutlineInputBorder(),
+    //                     ),
+    //                   ),
+    //                   if (category == 'Other')
+    //                     Column(
+    //                       children: [
+    //                         SizedBox(height: 10.0),
+    //                         TextField(
+    //                           decoration: InputDecoration(
+    //                             labelText: 'Custom Category',
+    //                             border: OutlineInputBorder(),
+    //                           ),
+    //                           onChanged: (value) {
+    //                             customCategory = value;
+    //                           },
+    //                         ),
+    //                       ],
+    //                     ),
+    //                   SizedBox(height: 10.0),
+    //                   TextField(
+    //                     controller: amountController,
+    //                     decoration: InputDecoration(
+    //                       labelText: 'Amount',
+    //                       border: OutlineInputBorder(),
+    //                       suffixText: '\$',
+    //                     ),
+    //                     keyboardType: TextInputType.number,
+    //                     onChanged: (value) {
+    //                       try {
+    //                         amount = double.parse(value);
+    //                       } catch (e) {
+    //                         amount = 0.0;
+    //                       }
+    //                     },
+    //                   ),
+    //                   SizedBox(height: 10.0),
+    //                   TextField(
+    //                     controller: timeController,
+    //                     decoration: InputDecoration(
+    //                       labelText: 'Date',
+    //                       border: OutlineInputBorder(),
+    //                     ),
+    //                     readOnly: true,
+    //                     onTap: () => _selectDate(context, setState),
+    //                   ),
+    //                   SizedBox(height: 20.0),
+    //                   Row(
+    //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //                     children: [
+    //                       TextButton(
+    //                         onPressed: () {
+    //                           Navigator.of(context).pop();
+    //                         },
+    //                         child: Text(
+    //                           'Cancel',
+    //                           style: TextStyle(
+    //                             color: Colors.red,
+    //                           ),
+    //                         ),
+    //                       ),
+    //                       ElevatedButton(
+    //                         onPressed: () {
+    //                           if ((category != 'Other' ||
+    //                                   (category == 'Other' &&
+    //                                       customCategory.isNotEmpty)) &&
+    //                               time.isNotEmpty &&
+    //                               amount > 0) {
+    //                             _addExpense(
+    //                                 category == 'Other'
+    //                                     ? customCategory
+    //                                     : category,
+    //                                 amount,
+    //                                 time,
+    //                                 icon,
+    //                                 color);
+    //                             Navigator.of(context).pop();
+    //                           } else {
+    //                             showDialog(
+    //                               context: context,
+    //                               builder: (context) {
+    //                                 return AlertDialog(
+    //                                   title: Text('Invalid Input'),
+    //                                   content: Text(
+    //                                       'Please fill in all the fields.'),
+    //                                   actions: [
+    //                                     TextButton(
+    //                                       onPressed: () {
+    //                                         Navigator.of(context).pop();
+    //                                       },
+    //                                       child: Text('OK'),
+    //                                     ),
+    //                                   ],
+    //                                 );
+    //                               },
+    //                             );
+    //                           }
+    //                         },
+    //                         child: Text('Add'),
+    //                         style: ElevatedButton.styleFrom(
+    //                           backgroundColor: Colors.red,
+    //                           foregroundColor: Colors.white,
+    //                           shape: RoundedRectangleBorder(
+    //                             borderRadius: BorderRadius.circular(20.0),
+    //                           ),
+    //                         ),
+    //                       ),
+    //                     ],
+    //                   ),
+    //                 ],
+    //               ),
+    //             );
+    //           },
+    //         ),
+    //       ),
+    //     );
+    //   },
+    // );
+    showModalBottomSheet(
+        context: context,
+        builder: (context) => Container(
+              width: double.infinity,
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  children: [
+                    Column(
+                      children: [
+                        Container(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'How much?',
+                                style: GoogleFonts.inter(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
                               ),
-                              onChanged: (value) {
-                                customCategory = value;
+                              SizedBox(
+                                height: 8,
+                              ),
+                              TextField(
+                                style: GoogleFonts.inter(
+                                    fontSize: 36, fontWeight: FontWeight.bold),
+                                controller: amountController,
+                                decoration: InputDecoration(
+                                  prefixIcon: Text('Rp.',
+                                      style: GoogleFonts.inter(
+                                          fontSize: 36,
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                                keyboardType: TextInputType.number,
+                                onChanged: (value) {
+                                  try {
+                                    amount = double.parse(value);
+                                  } catch (e) {
+                                    amount = 0.0;
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 16,
+                        ),
+                        DropdownButtonFormField<String>(
+                          value: category,
+                          items: categories.keys.map((String category) {
+                            return DropdownMenuItem<String>(
+                              value: category,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                      categories[category]!['icon'] as IconData,
+                                      color: categories[category]!['color']
+                                          as Color),
+                                  SizedBox(width: 10.0),
+                                  Text(category),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              category = value!;
+                              icon = categories[category]!['icon'] as IconData;
+                              color = categories[category]!['color'] as Color;
+                            });
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'Category',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        if (category == 'Other')
+                          Column(
+                            children: [
+                              SizedBox(height: 10.0),
+                              TextField(
+                                decoration: InputDecoration(
+                                  labelText: 'Custom Category',
+                                  border: OutlineInputBorder(),
+                                ),
+                                onChanged: (value) {
+                                  customCategory = value;
+                                },
+                              ),
+                            ],
+                          ),
+                        SizedBox(
+                          height: 16,
+                        ),
+                        TextField(
+                          controller: timeController,
+                          decoration: InputDecoration(
+                            labelText: 'Date',
+                            border: OutlineInputBorder(),
+                          ),
+                          readOnly: true,
+                          onTap: () => _selectDate(context, setState),
+                        ),
+                        SizedBox(height: 16.0),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            MaterialButton(
+                              onPressed: () {
+                                if ((category != 'Other' ||
+                                        (category == 'Other' &&
+                                            customCategory.isNotEmpty)) &&
+                                    time.isNotEmpty &&
+                                    amount > 0) {
+                                  _addExpense(
+                                      category == 'Other'
+                                          ? customCategory
+                                          : category,
+                                      amount,
+                                      time,
+                                      icon,
+                                      color);
+                                  Navigator.of(context).pop();
+                                } else {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: Text('Invalid Input'),
+                                        content: Text(
+                                            'Please fill in all the fields.'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text('OK'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                }
                               },
+                              minWidth: double.infinity,
+                              color: Colors.red,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                              height: 50,
+                              child: Text("Add",
+                                  style: GoogleFonts.inter(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                            SizedBox(
+                              height: 16,
+                            ),
+                            MaterialButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              minWidth: double.infinity,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  side:
+                                      BorderSide(color: Colors.red, width: 2)),
+                              height: 50,
+                              child: Text("Cancel",
+                                  style: GoogleFonts.inter(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold)),
                             ),
                           ],
                         ),
-                      SizedBox(height: 10.0),
-                      TextField(
-                        controller: amountController,
-                        decoration: InputDecoration(
-                          labelText: 'Amount',
-                          border: OutlineInputBorder(),
-                          suffixText: '\$',
-                        ),
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) {
-                          try {
-                            amount = double.parse(value);
-                          } catch (e) {
-                            amount = 0.0;
-                          }
-                        },
-                      ),
-                      SizedBox(height: 10.0),
-                      TextField(
-                        controller: timeController,
-                        decoration: InputDecoration(
-                          labelText: 'Date',
-                          border: OutlineInputBorder(),
-                        ),
-                        readOnly: true,
-                        onTap: () => _selectDate(context, setState),
-                      ),
-                      SizedBox(height: 20.0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text(
-                              'Cancel',
-                              style: TextStyle(
-                                color: Colors.red,
-                              ),
-                            ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              if ((category != 'Other' ||
-                                      (category == 'Other' &&
-                                          customCategory.isNotEmpty)) &&
-                                  time.isNotEmpty &&
-                                  amount > 0) {
-                                _addExpense(
-                                    category == 'Other'
-                                        ? customCategory
-                                        : category,
-                                    amount,
-                                    time,
-                                    icon,
-                                    color);
-                                Navigator.of(context).pop();
-                              } else {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: Text('Invalid Input'),
-                                      content: Text(
-                                          'Please fill in all the fields.'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: Text('OK'),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              }
-                            },
-                            child: Text('Add'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ));
   }
 
   @override
@@ -597,7 +778,7 @@ class _ExpensePageState extends State<ExpensePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddExpenseDialog,
-        child: Icon(Icons.add),
+        child: Icon(Icons.add,color: Colors.white,),
         backgroundColor: Colors.red,
       ),
     );

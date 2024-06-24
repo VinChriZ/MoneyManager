@@ -473,7 +473,7 @@ class _IncomePageState extends State<IncomePage> {
                                     fontSize: 36, fontWeight: FontWeight.bold),
                                 controller: amountController,
                                 decoration: InputDecoration(
-                                  prefixIcon: Text('\$',
+                                  prefixIcon: Text('Rp.',
                                       style: GoogleFonts.inter(
                                           fontSize: 36,
                                           fontWeight: FontWeight.bold)),
@@ -611,7 +611,7 @@ class _IncomePageState extends State<IncomePage> {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   side:
-                                      BorderSide(color: Colors.red, width: 2)),
+                                      BorderSide(color: Colors.green, width: 2)),
                               height: 50,
                               child: Text("Cancel",
                                   style: GoogleFonts.inter(
@@ -779,7 +779,7 @@ class _IncomePageState extends State<IncomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddIncomeDialog,
-        child: Icon(Icons.add),
+        child: Icon(Icons.add,color: Colors.white,),
         backgroundColor: Colors.green,
       ),
     );
