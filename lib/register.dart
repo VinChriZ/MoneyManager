@@ -16,7 +16,6 @@ class _RegisterState extends State<Register> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final nameController = TextEditingController();
-  final baseMoneyController = TextEditingController();
 
   Future<void> _registerUser(BuildContext context) async {
     try {
@@ -33,7 +32,7 @@ class _RegisterState extends State<Register> {
       final url = Uri.https(
         'ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app',
         'users.json'
-        );
+      );
       await http.post(
         url,
         body: json.encode({
@@ -54,7 +53,7 @@ class _RegisterState extends State<Register> {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => Login()),
+                    MaterialPageRoute(builder: (context) => Login()),
                   );
                 },
                 child: Text('OK'),
@@ -85,105 +84,137 @@ class _RegisterState extends State<Register> {
     }
   }
 
-  @override
+@override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Register'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 20.0),
-            const Icon(
-              Icons.person_add,
-              size: 100,
-              color: Colors.blue,
-            ),
-            const SizedBox(height: 20.0),
-            const Text(
-              'Create Account',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            const Text(
-              'Please enter your details to sign up',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16.0,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 40.0),
-
-                        // Name TextField
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(
-                labelText: 'Name',
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            
-            // Email TextField
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-              ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 16.0),
-            
-            // Password TextField
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                prefixIcon: Icon(Icons.lock),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 16.0),
-            
-            
-            // Register Button
-            MaterialButton(
-              minWidth: double.infinity,
-              height: 60,
-              onPressed: () {
-                _registerUser(context);
-              },
-              color: Color.fromARGB(255, 112, 69, 222), 
-                textColor: Colors.white,
-                padding: EdgeInsets.symmetric(vertical: 12.0),
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(color: Colors.black),
-                  borderRadius: BorderRadius.circular(15.0),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Color.fromARGB(255, 109, 152, 217), // Blue color
+        child: Center(
+          child: Stack(
+            alignment: Alignment.topCenter,
+            children: <Widget>[
+              Positioned(
+                top: MediaQuery.of(context).size.height * 0.10,
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  height: MediaQuery.of(context).size.height * 0.85,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
                   ),
-              child: const Text(
-                'Register',
-                style: TextStyle(fontSize: 18.0),
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: 60.0),
+                          const Icon(
+                            Icons.person_add,
+                            size: 100,
+                            color: Colors.blue,
+                          ),
+                          const SizedBox(height: 20.0),
+                          const Text(
+                            'Create Account',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 24.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 10.0),
+                          const Text(
+                            'Please enter your details to sign up',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 40.0),
+
+                          // Name TextField
+                          TextField(
+                            controller: nameController,
+                            decoration: InputDecoration(
+                              labelText: 'Name',
+                              prefixIcon: Icon(Icons.person),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16.0),
+
+                          // Email TextField
+                          TextField(
+                            controller: emailController,
+                            decoration: InputDecoration(
+                              labelText: 'Email',
+                              prefixIcon: Icon(Icons.email),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                            ),
+                            keyboardType: TextInputType.emailAddress,
+                          ),
+                          const SizedBox(height: 16.0),
+
+                          // Password TextField
+                          TextField(
+                            controller: passwordController,
+                            decoration: InputDecoration(
+                              labelText: 'Password',
+                              prefixIcon: Icon(Icons.lock),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                            ),
+                            obscureText: true,
+                          ),
+                          const SizedBox(height: 16.0),
+
+                          // Register Button
+                          MaterialButton(
+                            minWidth: double.infinity,
+                            height: 60,
+                            onPressed: () {
+                              _registerUser(context);
+                            },
+                            color: const Color.fromRGBO(59, 55, 175, 1),
+                            textColor: Colors.white,
+                            padding: EdgeInsets.symmetric(vertical: 12.0),
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(color: Colors.black),
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            child: const Text(
+                              'Register',
+                              style: TextStyle(fontSize: 18.0),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ],
+              Positioned(
+                top: 80,
+                left: 40,
+                child: IconButton(
+                  icon: Icon(Icons.arrow_back, color: const Color.fromARGB(255, 47, 47, 47), size: 35,),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
