@@ -39,12 +39,12 @@ class Page3 extends StatelessWidget {
                             height: 8,
                           ),
                           Text(
-                            "Setup your budget for each category",
+                            "Setup your budget for each",
                             style: GoogleFonts.inter(
                                 fontSize: 16, color: Colors.grey,fontWeight: FontWeight.w500),
                           ),
                           Text(
-                            "so you in control",
+                            "category so you in control",
                             style: GoogleFonts.inter(
                                 fontSize: 16, color: Colors.grey,fontWeight: FontWeight.w500),
                           )

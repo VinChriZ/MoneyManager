@@ -633,7 +633,8 @@ class _IncomePageState extends State<IncomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Income'),
+        title: Text('Income',style: GoogleFonts.inter(fontWeight: FontWeight.bold,color: Colors.white),),
+        centerTitle: true,
         backgroundColor: Colors.green,
       ),
       body: Container(
@@ -711,7 +712,7 @@ class _IncomePageState extends State<IncomePage> {
                     padding: const EdgeInsets.all(16.0),
                     child: LineChart(
                       LineChartData(
-                        gridData: FlGridData(show: false),
+                        gridData: FlGridData(show: true),
                         titlesData: FlTitlesData(
                           topTitles: AxisTitles(
                             axisNameWidget: Text(
@@ -724,10 +725,8 @@ class _IncomePageState extends State<IncomePage> {
                             ),
                           ),
                           bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 10
-                            ),
+                            sideTitles:
+                                SideTitles(showTitles: true, reservedSize: 10),
                           ),
                           rightTitles: AxisTitles(
                             sideTitles: SideTitles(
@@ -746,13 +745,13 @@ class _IncomePageState extends State<IncomePage> {
                             ),
                           ),
                           leftTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 40
-                            ),
+                            sideTitles:
+                                SideTitles(showTitles: true, reservedSize: 40),
                           ),
                         ),
-                        borderData: FlBorderData(show: true),
+                        borderData: FlBorderData(
+                            border: Border(
+                                bottom: BorderSide(), left: BorderSide())),
                         lineBarsData: [
                           LineChartBarData(
                             spots: data,

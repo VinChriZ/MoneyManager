@@ -629,7 +629,8 @@ class _ExpensePageState extends State<ExpensePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Expenses'),
+        title: Text('Expenses',style: GoogleFonts.inter(fontWeight: FontWeight.bold,color: Colors.white,),),
+        centerTitle: true,
         backgroundColor: Colors.red,
       ),
       body: Container(
@@ -709,7 +710,7 @@ class _ExpensePageState extends State<ExpensePage> {
                     padding: const EdgeInsets.all(16.0),
                     child: LineChart(
                       LineChartData(
-                        gridData: FlGridData(show: false),
+                        gridData: FlGridData(show: true),
                         titlesData: FlTitlesData(
                           topTitles: AxisTitles(
                             axisNameWidget: Text(
@@ -746,7 +747,9 @@ class _ExpensePageState extends State<ExpensePage> {
                                 SideTitles(showTitles: true, reservedSize: 40),
                           ),
                         ),
-                        borderData: FlBorderData(show: true),
+                        borderData: FlBorderData(
+                            border: Border(
+                                bottom: BorderSide(), left: BorderSide())),
                         lineBarsData: [
                           LineChartBarData(
                             spots: data,
