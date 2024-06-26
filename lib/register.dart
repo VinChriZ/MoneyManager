@@ -19,20 +19,17 @@ class _RegisterState extends State<Register> {
 
   Future<void> _registerUser(BuildContext context) async {
     try {
-      // Create user with Firebase Authentication
-      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
 
-      // Get the user ID
       String uid = userCredential.user!.uid;
 
-      // Save user data to Firebase Realtime Database
       final url = Uri.https(
-        'ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app',
-        'users.json'
-      );
+          'ambw-auth-171bb-default-rtdb.asia-southeast1.firebasedatabase.app',
+          'users.json');
       await http.post(
         url,
         body: json.encode({
@@ -42,7 +39,6 @@ class _RegisterState extends State<Register> {
         }),
       );
 
-      // Show success dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -63,7 +59,6 @@ class _RegisterState extends State<Register> {
         },
       );
     } catch (e) {
-      // Show error dialog
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -84,13 +79,13 @@ class _RegisterState extends State<Register> {
     }
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        color: Color.fromARGB(255, 109, 152, 217), // Blue color
+        color: Color.fromARGB(255, 109, 152, 217),
         child: Center(
           child: Stack(
             alignment: Alignment.topCenter,
@@ -136,8 +131,6 @@ class _RegisterState extends State<Register> {
                             ),
                           ),
                           const SizedBox(height: 40.0),
-
-                          // Name TextField
                           TextField(
                             controller: nameController,
                             decoration: InputDecoration(
@@ -149,8 +142,6 @@ class _RegisterState extends State<Register> {
                             ),
                           ),
                           const SizedBox(height: 16.0),
-
-                          // Email TextField
                           TextField(
                             controller: emailController,
                             decoration: InputDecoration(
@@ -163,8 +154,6 @@ class _RegisterState extends State<Register> {
                             keyboardType: TextInputType.emailAddress,
                           ),
                           const SizedBox(height: 16.0),
-
-                          // Password TextField
                           TextField(
                             controller: passwordController,
                             decoration: InputDecoration(
@@ -177,8 +166,6 @@ class _RegisterState extends State<Register> {
                             obscureText: true,
                           ),
                           const SizedBox(height: 16.0),
-
-                          // Register Button
                           MaterialButton(
                             minWidth: double.infinity,
                             height: 60,
@@ -207,7 +194,11 @@ class _RegisterState extends State<Register> {
                 top: 80,
                 left: 40,
                 child: IconButton(
-                  icon: Icon(Icons.arrow_back, color: const Color.fromARGB(255, 47, 47, 47), size: 35,),
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: const Color.fromARGB(255, 47, 47, 47),
+                    size: 35,
+                  ),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },

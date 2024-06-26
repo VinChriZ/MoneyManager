@@ -23,11 +23,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => UserData(), // Provide UserData instance
-      child: MaterialApp(
-          // home: AuthPage(),
-          debugShowCheckedModeBanner: false,
-          home: SplashScreen()),
+      create: (context) => UserData(),
+      child:
+          MaterialApp(debugShowCheckedModeBanner: false, home: SplashScreen()),
     );
   }
 }

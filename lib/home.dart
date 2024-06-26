@@ -151,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
       fetchedTransactions.add({
         'type': 'income',
         'amount': data['amount'],
-        'time': data['time'], // Date in string format "21-6-2024"
+        'time': data['time'],
         'category': category,
         'icon': categoryData?['icon'],
         'color': categoryData?['color'],
@@ -166,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
       fetchedTransactions.add({
         'type': 'expense',
         'amount': data['amount'],
-        'time': data['time'], // Date in string format "21-6-2024"
+        'time': data['time'],
         'category': category,
         'icon': categoryData?['icon'],
         'color': categoryData?['color'],

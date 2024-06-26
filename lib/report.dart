@@ -41,9 +41,9 @@ class _ReportPageState extends State<ReportPage> {
   List<FlSpot> incomeData = [];
   List<FlSpot> expenseData = [];
   bool isLoading = true;
-  String filterType = 'All'; // 'All', 'Income', 'Expense'
-  String filterCategory = 'All'; // 'All' or any specific category
-  String sortOrder = 'Date'; // 'Date' or 'Amount'
+  String filterType = 'All';
+  String filterCategory = 'All';
+  String sortOrder = 'Date';
   GlobalKey _chartKey = GlobalKey();
   Set<String> allCategories = {'All'};
 
@@ -86,7 +86,7 @@ class _ReportPageState extends State<ReportPage> {
       fetchedTransactions.add({
         'type': 'income',
         'amount': data['amount'],
-        'time': data['time'], // Date in string format "21-6-2024"
+        'time': data['time'],
         'category': data['category'],
         'icon': FontAwesomeIcons.arrowDown,
         'color': Colors.green,
@@ -99,7 +99,7 @@ class _ReportPageState extends State<ReportPage> {
       fetchedTransactions.add({
         'type': 'expense',
         'amount': data['amount'],
-        'time': data['time'], // Date in string format "21-6-2024"
+        'time': data['time'],
         'category': data['category'],
         'icon': FontAwesomeIcons.arrowUp,
         'color': Colors.red,
@@ -407,7 +407,7 @@ class _ReportPageState extends State<ReportPage> {
                 RepaintBoundary(
                   key: _chartKey,
                   child: SizedBox(
-                    height: 300, // Set the height of the chart to 300
+                    height: 300,
                     width: 420,
                     child: LineChart(
                       LineChartData(
@@ -479,7 +479,7 @@ class _ReportPageState extends State<ReportPage> {
                         lineBarsData: [
                           LineChartBarData(
                             spots: incomeData,
-                            isCurved: true,
+                            isCurved: false,
                             color: Colors.green,
                             barWidth: 4,
                             belowBarData: BarAreaData(
@@ -489,7 +489,7 @@ class _ReportPageState extends State<ReportPage> {
                           ),
                           LineChartBarData(
                             spots: expenseData,
-                            isCurved: true,
+                            isCurved: false,
                             color: Colors.red,
                             barWidth: 4,
                             belowBarData: BarAreaData(
@@ -507,7 +507,6 @@ class _ReportPageState extends State<ReportPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      // Sorting Controls
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.grey[200],
@@ -543,8 +542,6 @@ class _ReportPageState extends State<ReportPage> {
                           ],
                         ),
                       ),
-
-                      // Filter Type Dropdown
                       Container(
                         padding:
                             EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -570,8 +567,6 @@ class _ReportPageState extends State<ReportPage> {
                           ),
                         ),
                       ),
-
-                      // Filter Category Dropdown
                       Container(
                         padding:
                             EdgeInsets.symmetric(horizontal: 12, vertical: 4),

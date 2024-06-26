@@ -93,7 +93,7 @@ class _ExpensePageState extends State<ExpensePage> {
     List<Map<String, dynamic>> fetchedExpenses = snapshot.docs.map((doc) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       return {
-        'documentId': doc.id, // Add the document ID for deletion
+        'documentId': doc.id,
         'category': data['category'],
         'amount': data['amount'],
         'time': data['time'],
@@ -154,7 +154,6 @@ class _ExpensePageState extends State<ExpensePage> {
   void _deleteExpense(String documentId) async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      // Handle the case where the user is not authenticated
       return;
     }
 
@@ -267,181 +266,11 @@ class _ExpensePageState extends State<ExpensePage> {
       if (picked != null && picked != DateTime.now()) {
         setState(() {
           time = "${picked.day}-${picked.month}-${picked.year}";
-          timeController.text = time; // Update the controller's text
+          timeController.text = time;
         });
       }
     }
 
-    // showDialog(
-    //   context: context,
-    //   builder: (context) {
-    //     return Dialog(
-    //       shape: RoundedRectangleBorder(
-    //         borderRadius: BorderRadius.circular(20.0),
-    //       ),
-    //       child: Container(
-    //         padding: EdgeInsets.all(20.0),
-    //         decoration: BoxDecoration(
-    //           color: Colors.white,
-    //           borderRadius: BorderRadius.circular(20.0),
-    //         ),
-    //         child: StatefulBuilder(
-    //           builder: (BuildContext context, StateSetter setState) {
-    //             return SingleChildScrollView(
-    //               child: Column(
-    //                 mainAxisSize: MainAxisSize.min,
-    //                 children: [
-    //                   Text(
-    //                     'Add Expense',
-    //                     style: GoogleFonts.inter(
-    //                       fontSize: 24.0,
-    //                       fontWeight: FontWeight.bold,
-    //                       color: Colors.red,
-    //                     ),
-    //                   ),
-    //                   SizedBox(height: 20.0),
-    //                   DropdownButtonFormField<String>(
-    //                     value: category,
-    //                     items: categories.keys.map((String category) {
-    //                       return DropdownMenuItem<String>(
-    //                         value: category,
-    //                         child: Row(
-    //                           children: [
-    //                             Icon(categories[category]!['icon'] as IconData,
-    //                                 color: categories[category]!['color']
-    //                                     as Color),
-    //                             SizedBox(width: 10.0),
-    //                             Text(category),
-    //                           ],
-    //                         ),
-    //                       );
-    //                     }).toList(),
-    //                     onChanged: (value) {
-    //                       setState(() {
-    //                         category = value!;
-    //                         icon = categories[category]!['icon'] as IconData;
-    //                         color = categories[category]!['color'] as Color;
-    //                       });
-    //                     },
-    //                     decoration: InputDecoration(
-    //                       labelText: 'Category',
-    //                       border: OutlineInputBorder(),
-    //                     ),
-    //                   ),
-    //                   if (category == 'Other')
-    //                     Column(
-    //                       children: [
-    //                         SizedBox(height: 10.0),
-    //                         TextField(
-    //                           decoration: InputDecoration(
-    //                             labelText: 'Custom Category',
-    //                             border: OutlineInputBorder(),
-    //                           ),
-    //                           onChanged: (value) {
-    //                             customCategory = value;
-    //                           },
-    //                         ),
-    //                       ],
-    //                     ),
-    //                   SizedBox(height: 10.0),
-    //                   TextField(
-    //                     controller: amountController,
-    //                     decoration: InputDecoration(
-    //                       labelText: 'Amount',
-    //                       border: OutlineInputBorder(),
-    //                       suffixText: '\$',
-    //                     ),
-    //                     keyboardType: TextInputType.number,
-    //                     onChanged: (value) {
-    //                       try {
-    //                         amount = double.parse(value);
-    //                       } catch (e) {
-    //                         amount = 0.0;
-    //                       }
-    //                     },
-    //                   ),
-    //                   SizedBox(height: 10.0),
-    //                   TextField(
-    //                     controller: timeController,
-    //                     decoration: InputDecoration(
-    //                       labelText: 'Date',
-    //                       border: OutlineInputBorder(),
-    //                     ),
-    //                     readOnly: true,
-    //                     onTap: () => _selectDate(context, setState),
-    //                   ),
-    //                   SizedBox(height: 20.0),
-    //                   Row(
-    //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //                     children: [
-    //                       TextButton(
-    //                         onPressed: () {
-    //                           Navigator.of(context).pop();
-    //                         },
-    //                         child: Text(
-    //                           'Cancel',
-    //                           style: TextStyle(
-    //                             color: Colors.red,
-    //                           ),
-    //                         ),
-    //                       ),
-    //                       ElevatedButton(
-    //                         onPressed: () {
-    //                           if ((category != 'Other' ||
-    //                                   (category == 'Other' &&
-    //                                       customCategory.isNotEmpty)) &&
-    //                               time.isNotEmpty &&
-    //                               amount > 0) {
-    //                             _addExpense(
-    //                                 category == 'Other'
-    //                                     ? customCategory
-    //                                     : category,
-    //                                 amount,
-    //                                 time,
-    //                                 icon,
-    //                                 color);
-    //                             Navigator.of(context).pop();
-    //                           } else {
-    //                             showDialog(
-    //                               context: context,
-    //                               builder: (context) {
-    //                                 return AlertDialog(
-    //                                   title: Text('Invalid Input'),
-    //                                   content: Text(
-    //                                       'Please fill in all the fields.'),
-    //                                   actions: [
-    //                                     TextButton(
-    //                                       onPressed: () {
-    //                                         Navigator.of(context).pop();
-    //                                       },
-    //                                       child: Text('OK'),
-    //                                     ),
-    //                                   ],
-    //                                 );
-    //                               },
-    //                             );
-    //                           }
-    //                         },
-    //                         child: Text('Add'),
-    //                         style: ElevatedButton.styleFrom(
-    //                           backgroundColor: Colors.red,
-    //                           foregroundColor: Colors.white,
-    //                           shape: RoundedRectangleBorder(
-    //                             borderRadius: BorderRadius.circular(20.0),
-    //                           ),
-    //                         ),
-    //                       ),
-    //                     ],
-    //                   ),
-    //                 ],
-    //               ),
-    //             );
-    //           },
-    //         ),
-    //       ),
-    //     );
-    //   },
-    // );
     showModalBottomSheet(
         context: context,
         builder: (context) => Container(
@@ -629,7 +458,13 @@ class _ExpensePageState extends State<ExpensePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Expenses',style: GoogleFonts.inter(fontWeight: FontWeight.bold,color: Colors.white,),),
+        title: Text(
+          'Expenses',
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         centerTitle: true,
         backgroundColor: Colors.red,
       ),
@@ -677,14 +512,13 @@ class _ExpensePageState extends State<ExpensePage> {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.center, // Center the content
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       FaIcon(
                         FontAwesomeIcons.moneyBillTransfer,
                         color: Colors.white,
                       ),
-                      SizedBox(width: 8.0), // Add space between icon and text
+                      SizedBox(width: 8.0),
                       Text(
                         'Total Expense: \Rp. ${totalExpense.toStringAsFixed(2)}',
                         style: GoogleFonts.inter(
@@ -753,7 +587,7 @@ class _ExpensePageState extends State<ExpensePage> {
                         lineBarsData: [
                           LineChartBarData(
                             spots: data,
-                            isCurved: true,
+                            isCurved: false,
                             color: Colors.green,
                             barWidth: 4,
                             dotData: FlDotData(show: false),
